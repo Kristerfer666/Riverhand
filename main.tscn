@@ -1,0 +1,61 @@
+[gd_scene load_steps=13 format=3 uid="uid://c2p85hkst1br8"]
+
+[ext_resource type="Script" uid="uid://hd47qoeq76yw" path="res://DealerMind.gd" id="1_0xm2m"]
+[ext_resource type="Script" uid="uid://dj3jftihf65p2" path="res://GameMaster.gd" id="1_7mycd"]
+[ext_resource type="Script" uid="uid://djq2hx60bmg7f" path="res://hand.gd" id="2_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://bqtf1c7ghsf4y" path="res://materials/Card Back/Back1.png" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://glplqdh3vahy" path="res://deck.gd" id="3_lquwl"]
+[ext_resource type="Script" uid="uid://diqug4x443vgq" path="res://inputmind.gd" id="5_7mycd"]
+[ext_resource type="Script" uid="uid://fa75a62jvwno" path="res://card_table.gd" id="7_5vw27"]
+[ext_resource type="Texture2D" uid="uid://d0wx4xq8wtqt4" path="res://materials/background/table-2.png.png" id="7_kek77"]
+[ext_resource type="Texture2D" uid="uid://r2sen1mk3277" path="res://materials/background/table-1.png" id="8_efxa6"]
+[ext_resource type="Texture2D" uid="uid://jqn6q552tna5" path="res://materials/background/table-3.png.png" id="10_dg77c"]
+[ext_resource type="Texture2D" uid="uid://bhvkgol6dpy08" path="res://materials/background/table-4.png.png" id="11_ycdy4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1bvp3"]
+size = Vector2(20, 24)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_7mycd")
+
+[node name="Dealermind" type="Node2D" parent="."]
+script = ExtResource("1_0xm2m")
+
+[node name="Hand" type="Node2D" parent="."]
+script = ExtResource("2_0xm2m")
+
+[node name="Deck" type="Node2D" parent="."]
+script = ExtResource("3_lquwl")
+
+[node name="Sprite2D" type="Sprite2D" parent="Deck"]
+texture = ExtResource("3_h2yge")
+
+[node name="Area2D" type="Area2D" parent="Deck"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Deck/Area2D"]
+shape = SubResource("RectangleShape2D_1bvp3")
+
+[node name="Inputmind" type="Node2D" parent="."]
+script = ExtResource("5_7mycd")
+
+[node name="GameMaster" type="Node2D" parent="."]
+script = ExtResource("1_7mycd")
+
+[node name="CardTable" type="Node2D" parent="."]
+
+[node name="Table-2_png" type="Sprite2D" parent="CardTable"]
+top_level = true
+texture = ExtResource("7_kek77")
+
+[node name="Sprite2D" type="Sprite2D" parent="CardTable"]
+z_index = -100
+texture = ExtResource("8_efxa6")
+script = ExtResource("7_5vw27")
+
+[node name="Table-3_png" type="Sprite2D" parent="CardTable"]
+texture = ExtResource("10_dg77c")
+
+[node name="Table-4_png" type="Sprite2D" parent="CardTable"]
+texture = ExtResource("11_ycdy4")
