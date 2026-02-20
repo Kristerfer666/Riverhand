@@ -8,6 +8,7 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
+var podium = []
 var all_initial: Array = []
 
 var deck_ref
@@ -57,6 +58,8 @@ func degrade_ace():
 					await get_tree().create_timer(0.6).timeout
 					calc_degrade(degrade_suit)
 					recalculate_ace_y()
+	if podium.size() == 3:
+		deck_ref.clickable = false
 
 func flip_card(card):
 	if !card.face_up:
@@ -74,18 +77,63 @@ func flip_card(card):
 		tween.tween_property($AOS, "scale", 1.0, 0.3)
 		degrade_suit = card.suit
 
+func move_ace(card):
+	var ace_name = ""
+	match card.suit:
+		1:
+			ace_name = "AOS"
+			if AOS_pos < 6:
+				AOS_pos += 1
+				if AOS_pos == 6:
+					podium.append(ace_name)
+		2:
+			ace_name = "AOH"
+			if AOH_pos < 6:
+				AOH_pos += 1
+				if AOH_pos == 6:
+					podium.append(ace_name)
+		3:
+			ace_name = "AOC"
+			if AOC_pos < 6:
+				AOC_pos += 1
+				if AOC_pos == 6:
+					podium.append(ace_name)
+		4:
+			ace_name = "AOD"
+			if AOD_pos < 6:
+				AOD_pos += 1
+				if AOD_pos == 6:
+					podium.append(ace_name)
+		_:
+			return
+	# 统一处理 podium（适用于所有花色）
+	#if podium.has(ace_name):
+		#podium.erase(ace_name)
+	#podium.insert(0, ace_name)
+	print(podium)
+	recalculate_ace_y()
+	
+
 func calc_degrade(suit_num):
 	if suit_num == 1:
-		if game_master.AOS_pos > 0:
-			game_master.AOS_pos -= 1
+		if AOS_pos > 0:
+			AOS_pos -= 1
+			if podium.has("AOS"):
+				podium.erase("AOS")
 	elif suit_num == 2:
-		if game_master.AOH_pos > 0:
-			game_master.AOH_pos -= 1
+		if AOH_pos > 0:
+			AOH_pos -= 1
+			if podium.has("AOH"):
+				podium.erase("AOH")
 	elif suit_num == 3:
-		if game_master.AOC_pos > 0:
-			game_master.AOC_pos -= 1
+		if AOC_pos > 0:
+			AOC_pos -= 1
+			if podium.has("AOC"):
+				podium.erase("AOC")
 	elif suit_num == 4:
-		if game_master.AOD_pos > 0:
-			game_master.AOD_pos -= 1
+		if AOD_pos > 0:
+			AOD_pos -= 1
+			if podium.has("AOD"):
+				podium.erase("AOD")
 	else:
 		pass

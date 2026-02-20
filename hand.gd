@@ -25,27 +25,9 @@ func add_card_to_hand(card):
 		drawn_cards.insert(0, card)
 		update_hand_position()
 		await get_tree().create_timer(0.2).timeout
-		move_ace(card)
+		game_master.move_ace(card)
 	else:
 		animate_card_tp(card, card.inhand_position)
-
-
-func move_ace(card):
-	if card.suit == 1:
-		if game_master.AOS_pos < 6:
-			game_master.AOS_pos += 1
-	elif card.suit == 2:
-		if game_master.AOH_pos < 6:
-			game_master.AOH_pos += 1
-	elif card.suit == 3:
-		if game_master.AOC_pos < 6:
-			game_master.AOC_pos += 1
-	elif card.suit == 4:
-		if game_master.AOD_pos < 6:
-			game_master.AOD_pos += 1
-	else:
-		pass
-	game_master.recalculate_ace_y()
 
 
 func update_hand_position():
