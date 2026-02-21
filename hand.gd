@@ -14,7 +14,7 @@ var game_master_ref
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	center_screen_x = (get_viewport().size.x / 5) * 3
+	center_screen_x = (get_viewport_rect().size.x / 5) * 3
 	game_master_ref = $"../GameMaster"
 	
 
@@ -32,7 +32,7 @@ func add_card_to_hand(card):
 
 func update_hand_position():
 	for i in range(player_hand.size()):
-		var new_position = Vector2(calculate_card_position(-i), get_viewport().size.y / 8 * 2
+		var new_position = Vector2(calculate_card_position(-i), get_viewport_rect().size.y / 8 * 2
 		)
 		var card = player_hand[i]
 		card.inhand_position = new_position

@@ -31,8 +31,8 @@ func _ready() -> void:
 	scale = DECK_SCALE
 	$Area2D/CollisionShape2D.scale = DECK_SCALE
 	initial_deal = true
-	center_screen_y = get_viewport().size.y / 2
-	center_screen_x = get_viewport().size.x / 2
+	center_screen_y = get_viewport_rect().size.y / 2
+	center_screen_x = get_viewport_rect().size.x / 2
 	player_deck.shuffle()
 	card_database_ref = preload("res://carddatabase.gd")
 	card_database_ref.init_cards()
@@ -42,8 +42,8 @@ func _ready() -> void:
 	
 	
 func resize_to_screen():
-	position.y = get_viewport().size.y / 8 * 2
-	position.x = get_viewport().size.x / 6 * 5
+	position.y = get_viewport_rect().size.y / 8 * 2
+	position.x = get_viewport_rect().size.x / 6 * 5
 
 
 func draw_card():
