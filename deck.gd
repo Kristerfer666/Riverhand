@@ -6,10 +6,11 @@ const HAND_COUNT = 40
 const CARD_WIDTH = 125
 const CARD_LENGTH = 50
 const CENTER_X_POS = 250
-const ACE_Y_POS = 875
+const ACE_Y_POS = 900
 
 var deck
 var clickable
+var clickable_signal = false
 var center_screen_y
 var center_screen_x
 var initial_deal = true
@@ -81,7 +82,8 @@ func draw_card():
 		last_card = new_card
 		clickable = false
 		await get_tree().create_timer(1.618).timeout
-		clickable = true
+		if !clickable_signal:
+			clickable = true
 		
 		
 func initial_dealing():

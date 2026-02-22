@@ -1,6 +1,6 @@
 extends Node2D
 
-const ACE_Y_POS = 875
+const ACE_Y_POS = 900
 const CARD_WIDTH = 120
 
 var AOS_pos
@@ -18,6 +18,8 @@ var degrade_suit
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	#for i in 3:
+		#podium.append("a")
 	deck_ref = get_node("/root/Main/Deck")
 	card_ref = $"../card"
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
@@ -59,7 +61,10 @@ func degrade_ace():
 					calc_degrade(degrade_suit)
 					recalculate_ace_y()
 	if podium.size() == 3:
+		deck_ref.clickable_signal = true
 		deck_ref.clickable = false
+		await get_tree().create_timer(0.5).timeout
+		start_transition()
 
 func flip_card(card):
 	if !card.face_up:
@@ -137,3 +142,13 @@ func calc_degrade(suit_num):
 				podium.erase("AOD")
 	else:
 		pass
+	
+func start_transition():
+	var transition_scene = preload("res://scenes/transition_(control).tscn")
+	var transition = transition_scene.instantiate()
+
+	get_tree().root.add_child(transition) # 加到最顶层
+
+	await transition.finished  # 等动画播放完
+
+	get_tree().change_scene_to_file("res://NextScene.tscn")
