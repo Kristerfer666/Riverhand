@@ -67,6 +67,7 @@ func draw_card():
 		new_card.face_up = true
 		new_card.z_index = 3
 		new_card.num = card_drawn_name
+		new_card.position = self.position
 		detect_suit(new_card)
 		$"../Hand".add_card_to_hand(new_card)
 		if last_last_card:
@@ -103,6 +104,7 @@ func initial_dealing():
 		new_ace.drag = false
 		new_ace.face_up = true
 		initial_deal = false
+		new_ace.position = self.position
 		new_ace.get_node("AOS").texture = load(ace_image)
 		tween.tween_property(new_ace, "position", ace_position, 0.3)
 		await get_tree().create_timer(0.1).timeout
@@ -123,6 +125,7 @@ func initial_dealing():
 		new_card.face_up = false
 		new_card.side = true
 		new_card.side_order = i + 1
+		new_card.position = self.position
 		animate_initial_card_tp(new_card, new_position)
 		await get_tree().create_timer(0.1).timeout
 	clickable = true

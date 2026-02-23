@@ -3,7 +3,7 @@ extends Control
 signal finished
 
 @export var cell_size := 50
-@export var delay_between := 0.005
+@export var delay_between := 0.003
 @export var grow_time := 0.618
 
 var grid := []

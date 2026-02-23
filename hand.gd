@@ -32,8 +32,7 @@ func add_card_to_hand(card):
 
 func update_hand_position():
 	for i in range(player_hand.size()):
-		var new_position = Vector2(calculate_card_position(-i), get_viewport_rect().size.y / 8 * 2
-		)
+		var new_position = Vector2(calculate_card_position(-i), $"../Deck".position.y)
 		var card = player_hand[i]
 		card.inhand_position = new_position
 		card.z_index = 2

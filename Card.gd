@@ -46,8 +46,8 @@ func random_rotate():
 	
 
 func resize_to_screen():
-	position.y = get_viewport_rect().size.y / 8 * 2
-	position.x = get_viewport_rect().size.x / 6 * 5
+	#position.y = deck.position.y
+	#position.x = deck.position.x
 	rescale()
 	
 func rescale():
