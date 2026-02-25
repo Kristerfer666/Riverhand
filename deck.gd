@@ -8,6 +8,7 @@ const CARD_LENGTH = 50
 const CENTER_X_POS = 250
 const ACE_Y_POS = 900
 
+
 var deck
 var clickable
 var clickable_signal = false
@@ -154,3 +155,15 @@ func detect_suit(card):
 	else:
 		pass
 	
+func podium_display():
+	var shown_ace = aces[0]
+	var card_scene = preload(HAND_SCENE_PATH)
+	var new_card = card_scene.instantiate()
+	var card_image = str("res://materials/Card Faces/ver2/" + shown_ace + ".png")
+	new_card.get_node("AOS").texture = load(card_image)
+	$"../Dealermind".add_child(new_card)
+	new_card.name = "Card"
+	new_card.drag = false
+	new_card.face_up = true
+	new_card.z_index = 3
+	new_card.position = get_viewport_rect().size / 2

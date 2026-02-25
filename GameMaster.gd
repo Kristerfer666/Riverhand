@@ -12,6 +12,7 @@ var podium = []
 var all_initial: Array = []
 
 var deck_ref
+var transition_ref
 var card_ref
 
 var degrade_suit
@@ -21,6 +22,7 @@ func _ready() -> void:
 	#for i in 3:
 		#podium.append("a")
 	deck_ref = get_node("/root/Main/Deck")
+	transition_ref = get_node("/root/Main/PodiumTransition")
 	card_ref = $"../card"
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
@@ -141,13 +143,17 @@ func calc_degrade(suit_num):
 				podium.erase("AOD")
 	else:
 		pass
-	
+
 func start_transition():
-	var transition_scene = preload("res://scenes/transition_(control).tscn")
-	var transition = transition_scene.instantiate()
+	transition_ref.transition_signal()
 
-	get_tree().root.add_child(transition) # 加到最顶层
-
-	await transition.finished  # 等动画播放完
-
-	get_tree().change_scene_to_file("res://NextScene.tscn")
+	
+#func start_transition():
+	#var transition_scene = preload("res://scenes/transition_(control).tscn")
+	#var transition = transition_scene.instantiate()
+#
+	#get_tree().root.add_child(transition) # 加到最顶层
+#
+	#await transition.finished  # 等动画播放完
+#
+	##get_tree().change_scene_to_file("res://NextScene.tscn")
