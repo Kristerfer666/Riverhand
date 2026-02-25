@@ -41,6 +41,8 @@ func _ready() -> void:
 	$Sprite2D.texture = load(back_image)
 	resize_to_screen()
 	
+func _process(delta: float) -> void:
+	pass
 	
 func resize_to_screen():
 	position.y = get_viewport_rect().size.y / 8 * 2

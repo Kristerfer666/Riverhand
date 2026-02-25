@@ -11,11 +11,14 @@ var cols
 var rows
 var big_rect
 
+var podium = game_master.podium
+
 func _ready():
 	create_grid()
 	transition_proccess()
-	big_rect_transition()
-
+	await big_rect_transition().finished
+	print(podium)
+	
 func play_transition():
 	# 播放你的黑色方块动画
 	await get_tree().create_timer(1.5).timeout
@@ -57,9 +60,10 @@ func transition_proccess():
 			.set_trans(Tween.TRANS_CUBIC)\
 			.set_ease(Tween.EASE_OUT)
 			index += 1
-			
+		
 func big_rect_transition():
 	var tween = create_tween()
 	tween.tween_property(big_rect, "modulate:a", 0.618, 3)\
 	.set_trans(Tween.TRANS_CUBIC)\
 	.set_ease(Tween.EASE_OUT)
+	return tween

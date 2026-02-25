@@ -115,7 +115,6 @@ func move_ace(card):
 	#if podium.has(ace_name):
 		#podium.erase(ace_name)
 	#podium.insert(0, ace_name)
-	print(podium)
 	recalculate_ace_y()
 	
 
