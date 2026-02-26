@@ -43,6 +43,7 @@ func _ready() -> void:
 	resize_to_screen()
 	
 func _process(delta: float) -> void:
+	#draw_card()
 	pass
 	
 func resize_to_screen():
@@ -68,6 +69,7 @@ func draw_card():
 		new_card.name = "Card"
 		new_card.drag = false
 		new_card.face_up = true
+		new_card.podium = false
 		new_card.z_index = 3
 		new_card.num = card_drawn_name
 		new_card.position = self.position
@@ -106,6 +108,7 @@ func initial_dealing():
 		detect_suit(new_ace)
 		new_ace.drag = false
 		new_ace.face_up = true
+		new_ace.podium = false
 		initial_deal = false
 		new_ace.position = self.position
 		new_ace.get_node("AOS").texture = load(ace_image)
@@ -127,6 +130,7 @@ func initial_dealing():
 		new_card.drag = false
 		new_card.face_up = false
 		new_card.side = true
+		new_card.podium = false
 		new_card.side_order = i + 1
 		new_card.position = self.position
 		animate_initial_card_tp(new_card, new_position)
@@ -156,14 +160,33 @@ func detect_suit(card):
 		pass
 	
 func podium_display():
-	var shown_ace = aces[0]
+	for i in range(1, 4):
+		var podium_image = "res://materials/Card Faces/ver2/Aces/%s.png" % game_master.podium[i - 1]
+		podium_display_card(i, podium_image)
+	#var shown_ace_1= podium[-1]
+	#var shown_ace_2= podium[-2]
+	#var shown_ace_3= podium[-3]
+	#var card_image_1 = str("res://materials/Card Faces/ver2/Aces/" + shown_ace_1 + ".png")
+	#var card_image_2 = str("res://materials/Card Faces/ver2/Aces/" + shown_ace_2 + ".png")
+	#var card_image_3 = str("res://materials/Card Faces/ver2/Aces/" + shown_ace_3 + ".png")
+	
+	
+func podium_display_card(index, card_image):
+	var x_pos
 	var card_scene = preload(HAND_SCENE_PATH)
 	var new_card = card_scene.instantiate()
-	var card_image = str("res://materials/Card Faces/ver2/" + shown_ace + ".png")
 	new_card.get_node("AOS").texture = load(card_image)
 	$"../Dealermind".add_child(new_card)
 	new_card.name = "Card"
 	new_card.drag = false
 	new_card.face_up = true
+	new_card.podium = true
 	new_card.z_index = 3
-	new_card.position = get_viewport_rect().size / 2
+	new_card.position.y = get_viewport_rect().size.y / 2
+	if index == 1:
+		x_pos = 0
+	elif index == 2:
+		x_pos = -1
+	elif index == 3:
+		x_pos = 1
+	new_card.position.x = get_viewport_rect().size.x / 2 + (x_pos * 500)

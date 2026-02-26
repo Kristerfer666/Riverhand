@@ -65,7 +65,7 @@ func degrade_ace():
 	if podium.size() == 3:
 		deck_ref.clickable_signal = true
 		deck_ref.clickable = false
-		await get_tree().create_timer(0.5).timeout
+		await get_tree().create_timer(1).timeout
 		start_transition()
 
 func flip_card(card):
@@ -91,25 +91,25 @@ func move_ace(card):
 			ace_name = "AOS"
 			if AOS_pos < 6:
 				AOS_pos += 1
-				if AOS_pos == 6:
+				if AOS_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
 		2:
 			ace_name = "AOH"
 			if AOH_pos < 6:
 				AOH_pos += 1
-				if AOH_pos == 6:
+				if AOH_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
 		3:
 			ace_name = "AOC"
 			if AOC_pos < 6:
 				AOC_pos += 1
-				if AOC_pos == 6:
+				if AOC_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
 		4:
 			ace_name = "AOD"
 			if AOD_pos < 6:
 				AOD_pos += 1
-				if AOD_pos == 6:
+				if AOD_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
 		_:
 			return
@@ -117,6 +117,7 @@ func move_ace(card):
 	#if podium.has(ace_name):
 		#podium.erase(ace_name)
 	#podium.insert(0, ace_name)
+	print(podium)
 	recalculate_ace_y()
 	
 

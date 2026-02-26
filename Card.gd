@@ -5,6 +5,7 @@ signal hovered_off
 
 const ACE_SCALE = Vector2(2.6, 2.6)
 const CARD_SCALE = Vector2(2.8, 2.8)
+const PODIUM_SCALE = Vector2(4, 4)
 const CARD_HITBOX_SIZE = Vector2(40, 55)
 
 var rot_degree_x
@@ -18,6 +19,7 @@ var suit
 var ace = false
 var side = false
 var small = false
+var podium = false
 var side_order
 var ace_pos
 var correct_y
