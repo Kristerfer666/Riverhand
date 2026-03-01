@@ -38,7 +38,6 @@ func update_hand_position():
 		card.z_index = 2
 		animate_card_tp(card, new_position)
 
-
 func animate_card_tp(card, new_position):
 	var tween = get_tree().create_tween()
 	tween.tween_property(card, "position", new_position, 0.3)

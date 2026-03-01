@@ -100,7 +100,6 @@ func initial_dealing():
 		game_master.register_initial(new_ace)
 		new_ace.ace = true
 		new_ace.small = true
-		$"../Dealermind".add_child(new_ace)
 		var x_dealing = CENTER_X_POS + (5 - (i + 1)) * (CARD_WIDTH)
 		var ace_position = Vector2(x_dealing, ACE_Y_POS)
 		var ace_image = str("res://materials/Card Faces/ver2/" + aces[-(i + 1)] + ".png")
@@ -112,6 +111,7 @@ func initial_dealing():
 		initial_deal = false
 		new_ace.position = self.position
 		new_ace.get_node("AOS").texture = load(ace_image)
+		$"../Dealermind".add_child(new_ace)
 		tween.tween_property(new_ace, "position", ace_position, 0.3)
 		await get_tree().create_timer(0.1).timeout
 	for i in range(5):
@@ -122,7 +122,6 @@ func initial_dealing():
 		game_master.register_initial(new_card)
 		new_card.small = true
 		new_card.get_node("AOS").texture = load(back_image)
-		$"../Dealermind".add_child(new_card)
 		new_card.name = "Card"
 		var new_position = Vector2(CENTER_X_POS, calculate_initial_card_position(i + 1))
 		new_card.num = card_drawn_name
@@ -133,6 +132,7 @@ func initial_dealing():
 		new_card.podium = false
 		new_card.side_order = i + 1
 		new_card.position = self.position
+		$"../Dealermind".add_child(new_card)
 		animate_initial_card_tp(new_card, new_position)
 		await get_tree().create_timer(0.1).timeout
 	clickable = true
@@ -163,6 +163,7 @@ func podium_display():
 	for i in range(1, 4):
 		var podium_image = "res://materials/Card Faces/ver2/Aces/%s.png" % game_master.podium[i - 1]
 		podium_display_card(i, podium_image)
+		await get_tree().create_timer(0.4).timeout
 	#var shown_ace_1= podium[-1]
 	#var shown_ace_2= podium[-2]
 	#var shown_ace_3= podium[-3]
@@ -176,7 +177,6 @@ func podium_display_card(index, card_image):
 	var card_scene = preload(HAND_SCENE_PATH)
 	var new_card = card_scene.instantiate()
 	new_card.get_node("AOS").texture = load(card_image)
-	$"../Dealermind".add_child(new_card)
 	new_card.name = "Card"
 	new_card.drag = false
 	new_card.face_up = true
@@ -190,3 +190,4 @@ func podium_display_card(index, card_image):
 	elif index == 3:
 		x_pos = 1
 	new_card.position.x = get_viewport_rect().size.x / 2 + (x_pos * 500)
+	$"../Dealermind".add_child(new_card)

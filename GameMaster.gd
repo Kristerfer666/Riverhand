@@ -8,7 +8,7 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-var podium = []
+var podium = ["AOS", "AOH", "AOC"]
 var all_initial: Array = []
 
 var deck_ref

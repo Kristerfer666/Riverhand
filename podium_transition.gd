@@ -35,7 +35,7 @@ func create_grid():
 	rows = ceil(screen_size.y / cell_size)
 
 	big_rect = ColorRect.new()
-	big_rect.color = Color(0, 0, 0, 0.3)
+	big_rect.color = Color(0, 0, 0, 0.6)
 	big_rect.size = get_viewport_rect().size
 	big_rect.position = get_viewport_rect().position
 	big_rect.scale = get_viewport_rect().size
@@ -45,7 +45,7 @@ func create_grid():
 	for y in range(rows):
 		for x in range(cols):
 			var rect = ColorRect.new()
-			rect.color = Color(0, 0, 0, 0.3)
+			rect.color = Color(0, 0, 0, 0.6)
 			rect.size = Vector2(cell_size, cell_size)
 			rect.position = Vector2(x * cell_size, y * cell_size)
 			rect.scale = Vector2(0.01, 0.01)

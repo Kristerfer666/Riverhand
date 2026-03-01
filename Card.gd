@@ -5,7 +5,7 @@ signal hovered_off
 
 const ACE_SCALE = Vector2(2.6, 2.6)
 const CARD_SCALE = Vector2(2.8, 2.8)
-const PODIUM_SCALE = Vector2(4, 4)
+const PODIUM_SCALE = Vector2(5, 5)
 const CARD_HITBOX_SIZE = Vector2(40, 55)
 
 var rot_degree_x
@@ -25,6 +25,7 @@ var ace_pos
 var correct_y
 var last_move_pos
 var move_tween: Tween
+var screen_mid_y
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -54,13 +55,17 @@ func resize_to_screen():
 	
 func rescale():
 	var scale_to_use = Vector2(1, 1)
-
-	if small == true:
-		scale_to_use = ACE_SCALE
-		random_rotate()
+	
+	if podium:
+		scale_to_use = PODIUM_SCALE
+		podium_display_start()
 	else:
-		scale_to_use = CARD_SCALE
-		random_rotate()
+		if small == true:
+			scale_to_use = ACE_SCALE
+			random_rotate()
+		else:
+			scale_to_use = CARD_SCALE
+			random_rotate()
 		
 
 	# visual
@@ -97,8 +102,8 @@ func move_ace(new_pos):
 		shadow_track.tween_callback(func():
 			random_rotate()
 		)
-	await get_tree().create_timer(0.2).timeout
-	game_master.degrade_ace()
+		await get_tree().create_timer(0.2).timeout
+		game_master.degrade_ace()
 	
 func calc_shade_new_pos(ace_pos):
 	var shade_pos = Vector2($Shade.position.x + 14, $Shade.position.y + 30)
@@ -107,6 +112,25 @@ func calc_shade_new_pos(ace_pos):
 func calc_shade_last_pos():
 	var shade_pos = Vector2($AOS.position.x + 4, $AOS.position.y + 4)
 	return shade_pos
+
+func podium_display_start():
+	screen_mid_y = get_viewport_rect().size.y / 2
+	var tween = create_tween().bind_node(self)
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property($AOS, "scale", PODIUM_SCALE * 1.2, 0.6)
+	tween.parallel().tween_property($AOS, "global_position:y", screen_mid_y - 60, 0.6)
+	tween.parallel().tween_property($Shade, "modulate:a", 0.2, 0.6)
+	tween.parallel().tween_property($Shade, "scale", PODIUM_SCALE * 0.9, 0.6)
+	tween.parallel().tween_property($Shade, "global_position:y", screen_mid_y + 1, 0.6)
+	tween.tween_interval(1)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property($AOS, "scale", PODIUM_SCALE, 0.4)
+	tween.parallel().tween_property($AOS, "global_position:y", screen_mid_y - 3, 0.4)
+	tween.parallel().tween_property($Shade, "modulate:a", 0.5, 0.4)
+	tween.parallel().tween_property($Shade, "scale", PODIUM_SCALE, 0.4)
+	tween.parallel().tween_property($Shade, "global_position:y", screen_mid_y, 0.4)
 
 func _on_area_2d_mouse_entered() -> void:
 	emit_signal("hovered", self)
