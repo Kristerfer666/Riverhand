@@ -1,5 +1,7 @@
 extends Node2D
 
+signal podium_finished
+
 const HAND_SCENE_PATH = "res://scenes/card.tscn"
 const DECK_SCALE = Vector2(2.8, 2.8)
 const HAND_COUNT = 40
@@ -87,10 +89,7 @@ func draw_card():
 		last_last_card = last_card
 		last_card = new_card
 		clickable = false
-		if game_master.any_move:
-			await get_tree().create_timer(1.618).timeout
-		else:
-			await get_tree().create_timer(0.5).timeout
+		await get_tree().create_timer(1.618).timeout
 		game_master.any_move = true
 		if !clickable_signal:
 			clickable = true
@@ -168,6 +167,7 @@ func podium_display():
 		var podium_image = "res://materials/Card Faces/ver2/Aces/%s.png" % game_master.podium[i - 1]
 		podium_display_card(i, podium_image)
 		await get_tree().create_timer(0.4).timeout
+	emit_signal("podium_finished")
 	#var shown_ace_1= podium[-1]
 	#var shown_ace_2= podium[-2]
 	#var shown_ace_3= podium[-3]
@@ -195,3 +195,4 @@ func podium_display_card(index, card_image):
 		x_pos = 1
 	new_card.position.x = get_viewport_rect().size.x / 2 + (x_pos * 500)
 	$"../Dealermind".add_child(new_card)
+	

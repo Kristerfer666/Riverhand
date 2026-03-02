@@ -8,12 +8,14 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
+#var podium = ["AOS", "AOC", "AOD"]
 var podium = []
 var all_initial: Array = []
 
 var deck_ref
 var transition_ref
 var card_ref
+var restart_btn_ref
 
 var any_move
 var degrade_suit
@@ -25,8 +27,11 @@ func _ready() -> void:
 	deck_ref = get_node("/root/Main/Deck")
 	transition_ref = get_node("/root/Main/PodiumTransition")
 	card_ref = $"../card"
+	restart_btn_ref = get_node("/root/Main/CanvasLayer/Control/CenterContainer/Button")
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
+	deck_ref.podium_finished.connect(_on_podium_finished)
+	restart_btn_ref.hide()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -128,8 +133,7 @@ func move_ace(card):
 		#podium.erase(ace_name)
 	#podium.insert(0, ace_name)
 	#print(podium)
-	if any_move:
-		recalculate_ace_y()
+	recalculate_ace_y()
 	
 
 func calc_degrade(suit_num):
@@ -159,7 +163,13 @@ func calc_degrade(suit_num):
 func start_transition():
 	transition_ref.transition_signal()
 
+func _on_podium_finished():
+	restart_btn_ref.modulate.a = 0
+	restart_btn_ref.show()
 	
+	var tween = create_tween()
+	tween.tween_property(restart_btn_ref, "modulate:a", 1.0, 0.5)
+
 #func start_transition():
 	#var transition_scene = preload("res://scenes/transition_(control).tscn")
 	#var transition = transition_scene.instantiate()
