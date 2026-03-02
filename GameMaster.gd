@@ -15,6 +15,7 @@ var deck_ref
 var transition_ref
 var card_ref
 
+var any_move
 var degrade_suit
 
 # Called when the node enters the scene tree for the first time.
@@ -93,32 +94,42 @@ func move_ace(card):
 				AOS_pos += 1
 				if AOS_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
+			else:
+				any_move = false
+				
 		2:
 			ace_name = "AOH"
 			if AOH_pos < 6:
 				AOH_pos += 1
 				if AOH_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
+			else:
+				any_move = false
 		3:
 			ace_name = "AOC"
 			if AOC_pos < 6:
 				AOC_pos += 1
 				if AOC_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
+			else:
+				any_move = false
 		4:
 			ace_name = "AOD"
 			if AOD_pos < 6:
 				AOD_pos += 1
 				if AOD_pos == 6 && ace_name not in podium:
 					podium.append(ace_name)
+			else:
+				any_move = false
 		_:
 			return
 	# 统一处理 podium（适用于所有花色）
 	#if podium.has(ace_name):
 		#podium.erase(ace_name)
 	#podium.insert(0, ace_name)
-	print(podium)
-	recalculate_ace_y()
+	#print(podium)
+	if any_move:
+		recalculate_ace_y()
 	
 
 func calc_degrade(suit_num):

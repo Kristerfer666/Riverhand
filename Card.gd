@@ -126,7 +126,7 @@ func podium_display_start():
 	tween.tween_interval(1)
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property($AOS, "scale", PODIUM_SCALE, 0.4)
+	tween.tween_property($AOS, "scale", PODIUM_SCALE * 1.1, 0.4)
 	tween.parallel().tween_property($AOS, "global_position:y", screen_mid_y - 3, 0.4)
 	tween.parallel().tween_property($Shade, "modulate:a", 0.5, 0.4)
 	tween.parallel().tween_property($Shade, "scale", PODIUM_SCALE, 0.4)
