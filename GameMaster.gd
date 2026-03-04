@@ -8,13 +8,14 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-#var podium = ["AOS", "AOC", "AOD"]
 var podium = []
+#var podium = []
 var all_initial: Array = []
 
 var deck_ref
 var transition_ref
 var card_ref
+var hand_ref
 var restart_btn_ref
 
 var any_move
@@ -27,6 +28,7 @@ func _ready() -> void:
 	deck_ref = get_node("/root/Main/Deck")
 	transition_ref = get_node("/root/Main/PodiumTransition")
 	card_ref = $"../card"
+	hand_ref = get_node("/root/Main/Hand")
 	restart_btn_ref = get_node("/root/Main/CanvasLayer/Control/CenterContainer/Button")
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
@@ -48,6 +50,8 @@ func recalculate_ace_y():
 	var AOC_y = ACE_Y_POS - AOC_pos * CARD_WIDTH
 	var AOD_y = ACE_Y_POS - AOD_pos * CARD_WIDTH
 	for card in all_initial:
+		if is_instance_valid(card):
+			print(card.ace)
 		if card.ace:  # only move aces
 			var target_y = 0
 			match card.suit:
@@ -170,6 +174,22 @@ func _on_podium_finished():
 	var tween = create_tween()
 	tween.tween_property(restart_btn_ref, "modulate:a", 1.0, 0.5)
 
+#func _on_button_pressed() -> void:
+	#get_tree().reload_current_scene()
+	#for c in all_initial:
+		#if is_instance_valid(c):
+			#c.queue_free()
+	#all_initial.clear()
+	#for c in hand_ref.player_hand:
+		#if is_instance_valid(c):
+			#c.queue_free()
+	#hand_ref.player_hand.clear()
+	#for c in hand_ref.drawn_cards:
+		#if is_instance_valid(c):
+			#c.queue_free()
+	#hand_ref.drawn_cards.clear()
+	#return
+
 #func start_transition():
 	#var transition_scene = preload("res://scenes/transition_(control).tscn")
 	#var transition = transition_scene.instantiate()
@@ -178,4 +198,4 @@ func _on_podium_finished():
 #
 	#await transition.finished  # 等动画播放完
 #
-	##get_tree().change_scene_to_file("res://NextScene.tscn")
+	#get_tree().change_scene_to_file("res://NextScene.tscn")
