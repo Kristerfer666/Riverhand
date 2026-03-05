@@ -29,6 +29,7 @@ var card_back_calc = card_backs_list[0]
 var back_image = str("res://materials/Card Back/" + card_back_calc + ".png")
 
 var card_database_ref
+var gamemaster_ref
 
 
 func _ready() -> void:
@@ -41,6 +42,7 @@ func _ready() -> void:
 	card_database_ref = preload("res://carddatabase.gd")
 	card_database_ref.init_cards()
 	card_database_ref.init_card_backs()
+	gamemaster_ref = $"../GameMaster"
 	$Sprite2D.texture = load(back_image)
 	resize_to_screen()
 	
@@ -90,7 +92,7 @@ func draw_card():
 		last_card = new_card
 		clickable = false
 		await get_tree().create_timer(1.618).timeout
-		game_master.any_move = true
+		gamemaster_ref.any_move = true
 		if !clickable_signal:
 			clickable = true
 		
@@ -100,7 +102,6 @@ func initial_dealing():
 		var tween = create_tween()
 		var card_scene = preload(HAND_SCENE_PATH)
 		var new_ace = card_scene.instantiate()
-		game_master.register_initial(new_ace)
 		new_ace.ace = true
 		new_ace.small = true
 		var x_dealing = CENTER_X_POS + (5 - (i + 1)) * (CARD_WIDTH)
@@ -112,6 +113,7 @@ func initial_dealing():
 		new_ace.face_up = true
 		new_ace.podium = false
 		initial_deal = false
+		gamemaster_ref.register_initial(new_ace)
 		new_ace.position = self.position
 		new_ace.get_node("AOS").texture = load(ace_image)
 		$"../Dealermind".add_child(new_ace)
@@ -122,7 +124,6 @@ func initial_dealing():
 		player_deck.erase(card_drawn_name)
 		var card_scene = preload(HAND_SCENE_PATH)
 		var new_card = card_scene.instantiate()
-		game_master.register_initial(new_card)
 		new_card.small = true
 		new_card.get_node("AOS").texture = load(back_image)
 		new_card.name = "Card"
@@ -164,7 +165,7 @@ func detect_suit(card):
 	
 func podium_display():
 	for i in range(1, 4):
-		var podium_image = "res://materials/Card Faces/ver2/Aces/%s.png" % game_master.podium[i - 1]
+		var podium_image = "res://materials/Card Faces/ver2/Aces/%s.png" % gamemaster_ref.podium[i - 1]
 		podium_display_card(i, podium_image)
 		await get_tree().create_timer(0.4).timeout
 	emit_signal("podium_finished")

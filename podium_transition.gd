@@ -13,10 +13,10 @@ var cols
 var rows
 var big_rect
 
-var podium = game_master.podium
+var podium
 
 func _ready():
-	pass
+	podium = $"../GameMaster".podium
 	
 func transition_signal():
 	create_grid()

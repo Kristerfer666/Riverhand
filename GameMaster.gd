@@ -8,7 +8,7 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-var podium = []
+var podium = ["AOD", "AOS", "AOC"]
 #var podium = []
 var all_initial: Array = []
 
@@ -43,15 +43,15 @@ func _process(delta: float) -> void:
 func register_initial(card):
 	all_initial.append(card)
 
-
 func recalculate_ace_y():
 	var AOS_y = ACE_Y_POS - AOS_pos * CARD_WIDTH
 	var AOH_y = ACE_Y_POS - AOH_pos * CARD_WIDTH
 	var AOC_y = ACE_Y_POS - AOC_pos * CARD_WIDTH
 	var AOD_y = ACE_Y_POS - AOD_pos * CARD_WIDTH
 	for card in all_initial:
-		if is_instance_valid(card):
-			print(card.ace)
+		#if not is_instance_valid(card):
+			#print("bruh1")
+			#return
 		if card.ace:  # only move aces
 			var target_y = 0
 			match card.suit:
@@ -61,7 +61,8 @@ func recalculate_ace_y():
 				4: target_y = AOD_y
 			var target_pos = Vector2(card.position.x, target_y)
 			await get_tree().create_timer(0.1).timeout
-			card.move_ace(target_pos)
+			await card.move_card(target_pos)
+			degrade_ace()
 
 func degrade_ace():
 	for order in range(1, 6): 
@@ -174,21 +175,8 @@ func _on_podium_finished():
 	var tween = create_tween()
 	tween.tween_property(restart_btn_ref, "modulate:a", 1.0, 0.5)
 
-#func _on_button_pressed() -> void:
-	#get_tree().reload_current_scene()
-	#for c in all_initial:
-		#if is_instance_valid(c):
-			#c.queue_free()
-	#all_initial.clear()
-	#for c in hand_ref.player_hand:
-		#if is_instance_valid(c):
-			#c.queue_free()
-	#hand_ref.player_hand.clear()
-	#for c in hand_ref.drawn_cards:
-		#if is_instance_valid(c):
-			#c.queue_free()
-	#hand_ref.drawn_cards.clear()
-	#return
+func _on_button_pressed() -> void:
+	get_tree().reload_current_scene()
 
 #func start_transition():
 	#var transition_scene = preload("res://scenes/transition_(control).tscn")

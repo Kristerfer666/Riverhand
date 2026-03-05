@@ -102,8 +102,7 @@ func move_ace(new_pos):
 		shadow_track.tween_callback(func():
 			random_rotate()
 		)
-		await get_tree().create_timer(0.2).timeout
-		game_master.degrade_ace()
+		await tween.finished
 	
 func calc_shade_new_pos(ace_pos):
 	var shade_pos = Vector2($Shade.position.x + 14, $Shade.position.y + 30)
