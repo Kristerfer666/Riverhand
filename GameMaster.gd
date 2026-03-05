@@ -8,8 +8,8 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-var podium = ["AOD", "AOS", "AOC"]
-#var podium = []
+#var podium = ["AOD", "AOS", "AOC"]
+var podium = []
 var all_initial: Array = []
 
 var deck_ref
@@ -20,6 +20,7 @@ var restart_btn_ref
 
 var any_move
 var degrade_suit
+var transition_started = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -33,6 +34,7 @@ func _ready() -> void:
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
 	deck_ref.podium_finished.connect(_on_podium_finished)
+	transition_started = false
 	restart_btn_ref.hide()
 
 
@@ -61,7 +63,7 @@ func recalculate_ace_y():
 				4: target_y = AOD_y
 			var target_pos = Vector2(card.position.x, target_y)
 			await get_tree().create_timer(0.1).timeout
-			await card.move_card(target_pos)
+			await card.move_ace(target_pos)
 			degrade_ace()
 
 func degrade_ace():
@@ -73,11 +75,12 @@ func degrade_ace():
 					await get_tree().create_timer(0.6).timeout
 					calc_degrade(degrade_suit)
 					recalculate_ace_y()
-	if podium.size() == 3:
+	if podium.size() == 3 && !transition_started:
+		transition_started = true
 		deck_ref.clickable_signal = true
 		deck_ref.clickable = false
 		await get_tree().create_timer(1).timeout
-		start_transition()
+		transition_ref.transition_signal()
 
 func flip_card(card):
 	if !card.face_up:
@@ -164,9 +167,6 @@ func calc_degrade(suit_num):
 				podium.erase("AOD")
 	else:
 		pass
-
-func start_transition():
-	transition_ref.transition_signal()
 
 func _on_podium_finished():
 	restart_btn_ref.modulate.a = 0

@@ -190,10 +190,13 @@ func podium_display_card(index, card_image):
 	new_card.position.y = get_viewport_rect().size.y / 2
 	if index == 1:
 		x_pos = 0
+		new_card.podium_index = 1.15
 	elif index == 2:
 		x_pos = -1
+		new_card.podium_index = 1.05
 	elif index == 3:
 		x_pos = 1
-	new_card.position.x = get_viewport_rect().size.x / 2 + (x_pos * 500)
+		new_card.podium_index = 1.05
+	new_card.position.x = get_viewport_rect().size.x / 2 + (x_pos * 300)
 	$"../Dealermind".add_child(new_card)
 	
