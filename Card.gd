@@ -2,6 +2,7 @@ extends Node2D
 
 signal hovered
 signal hovered_off
+signal ace_selected(card)
 
 const ACE_SCALE = Vector2(2.6, 2.6)
 const CARD_SCALE = Vector2(2.8, 2.8)

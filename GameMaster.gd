@@ -12,6 +12,8 @@ var AOD_pos
 var podium = []
 var all_initial: Array = []
 
+var player_ace
+
 var deck_ref
 var transition_ref
 var card_ref
@@ -178,6 +180,11 @@ func _on_podium_finished():
 func _on_button_pressed() -> void:
 	get_tree().reload_current_scene()
 
+func select_ace(ace):
+	player_ace = ace
+	print(player_ace)
+	deck_ref.clickable = true
+	
 #func start_transition():
 	#var transition_scene = preload("res://scenes/transition_(control).tscn")
 	#var transition = transition_scene.instantiate()

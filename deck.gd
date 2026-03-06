@@ -139,7 +139,7 @@ func initial_dealing():
 		$"../Dealermind".add_child(new_card)
 		animate_initial_card_tp(new_card, new_position)
 		await get_tree().create_timer(0.1).timeout
-	clickable = true
+	#clickable = true
 
 
 func animate_initial_card_tp(card, initial_position):
