@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://bcaqxoa50co7u"]
+[gd_scene load_steps=36 format=3 uid="uid://bcaqxoa50co7u"]
 
 [ext_resource type="Script" uid="uid://cxcbntmal54c3" path="res://Card.gd" id="1_rjlel"]
 [ext_resource type="Texture2D" uid="uid://b7gkti2vu6o3w" path="res://materials/Card Faces/ver2/Aces/AOS.png" id="2_6u4wf"]
 [ext_resource type="Texture2D" uid="uid://dksha2ptnd8mb" path="res://materials/shades/shade.png" id="2_ktuci"]
+[ext_resource type="Texture2D" uid="uid://dhmxjhcnhcktx" path="res://materials/Animations/Anim-GoldAOS/Golden_ace_anim.png" id="4_kg30u"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kikvd"]
 size = Vector2(174, 202)
@@ -115,6 +116,196 @@ _data = {
 &"flip_card": SubResource("Animation_6u4wf")
 }
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_sy11y"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ligt"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8w5pg"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nvopj"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1yd6c"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_we8pq"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4wvaf"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u8dfr"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hpf3o"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_42b55"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xjciw"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(128, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_54seb"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v23hl"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3ydx5"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xuy1i"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(128, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rywyy"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(192, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_le4ky"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 256, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_125j1"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 256, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b834i"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(128, 256, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_07urr"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(192, 256, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l85n3"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0d501"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jye5o"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(128, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0uw8p"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(192, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yof7m"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(0, 384, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s4f1a"]
+atlas = ExtResource("4_kg30u")
+region = Rect2(64, 384, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_s05jc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sy11y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ligt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8w5pg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nvopj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1yd6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_we8pq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4wvaf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u8dfr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hpf3o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_42b55")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xjciw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_54seb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v23hl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3ydx5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xuy1i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rywyy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_le4ky")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_125j1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b834i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_07urr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l85n3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0d501")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jye5o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0uw8p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yof7m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s4f1a")
+}],
+"loop": false,
+"name": &"Anim-GoldAOS",
+"speed": 48.0
+}]
+
 [node name="card" type="Node2D"]
 position = Vector2(0, 1)
 script = ExtResource("1_rjlel")
@@ -142,6 +333,12 @@ libraries = {
 }
 
 [node name="CardBack" type="Sprite2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(9, -12)
+scale = Vector2(4.35156, 4.35156)
+sprite_frames = SubResource("SpriteFrames_s05jc")
+animation = &"Anim-GoldAOS"
 
 [connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
 [connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]

@@ -80,17 +80,25 @@ func _highlight(card, on: bool):
 	if card.small:
 		base_scale = ACE_SCALE
 	if on:
-		tween.tween_property(body, "scale", Vector2(base_scale + 0.2, base_scale + 0.2), 0.4)
-		tween.parallel().tween_property(shade, "modulate:a", 0.2, 0.3)
-		#tween.parallel().tween_property(shade, "scale", Vector2(base_scale - 0.1, base_scale - 0.1), 0.3)
-		tween.parallel().tween_property(shade, "position:y", body.position.y + 10, 0.4)
+		highlight_float(body, shade, base_scale, tween)
 		card.z_index = 2
 	else:
-		tween.tween_property(body, "scale", Vector2(base_scale, base_scale), 0.4)
-		tween.parallel().tween_property(shade, "modulate:a", 0.5, 0.4)
-		#tween.parallel().tween_property(shade, "scale", Vector2(base_scale, base_scale), 0.3)
-		tween.parallel().tween_property(shade, "position:y", body.position.y + 4.5, 0.4)
+		highlight_unfloat(body, shade, base_scale, tween)
 		card.z_index = 0
+
+func highlight_float(body, shade, base_scale, tween):
+	tween.tween_property(body, "scale", Vector2(base_scale + 0.2, base_scale + 0.2), 0.4)
+	tween.parallel().tween_property(shade, "modulate:a", 0.2, 0.3)
+	#tween.parallel().tween_property(shade, "scale", Vector2(base_scale - 0.1, base_scale - 0.1), 0.3)
+	tween.parallel().tween_property(shade, "position:y", body.position.y + 10, 0.4)
+
+func highlight_unfloat(body, shade, base_scale, tween):
+	tween.tween_property(body, "scale", Vector2(base_scale, base_scale), 0.4)
+	tween.parallel().tween_property(shade, "modulate:a", 0.5, 0.4)
+	#tween.parallel().tween_property(shade, "scale", Vector2(base_scale, base_scale), 0.3)
+	tween.parallel().tween_property(shade, "position:y", body.position.y + 4.5, 0.4)
+		
+
 
 # =====================
 # RAYCAST

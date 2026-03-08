@@ -14,6 +14,7 @@ var rot_degree_y
 
 var inhand_position
 var drag
+var animating
 var face_up
 var num
 var suit
@@ -73,6 +74,8 @@ func rescale():
 	# visual
 	$AOS.scale = scale_to_use
 	$Shade.scale = scale_to_use
+	$AnimatedSprite2D.scale = scale_to_use
+	$AnimatedSprite2D.visible = false
 
 	# collision (do NOT scale node)
 	var shape = $Area2D/CollisionShape2D.shape
@@ -133,9 +136,31 @@ func podium_display_start():
 	tween.parallel().tween_property($Shade, "scale", PODIUM_SCALE, 0.4)
 	tween.parallel().tween_property($Shade, "global_position:y", screen_mid_y, 0.4)
 
+func anim_gold():
+	$AnimatedSprite2D.visible = true
+	animating = true
+	emit_signal("hovered_off", self)
+	$AnimatedSprite2D.play("Anim-GoldAO" + suit_to_letter())
+	var gold_image = str("res://materials/Card Faces/ver2/Aces/GoldAces/GoldAO" + suit_to_letter() + ".png")
+	$AOS.texture = load(gold_image)
+	await $AnimatedSprite2D.animation_finished
+	animating = false
+	$AnimatedSprite2D.visible = false
+	
+func suit_to_letter():
+	var suit_letter
+	match suit:
+		1: suit_letter = "S"
+		2: suit_letter = "H"
+		3: suit_letter = "C"
+		4: suit_letter = "D"
+	return suit_letter
+
 func _on_area_2d_mouse_entered() -> void:
-	emit_signal("hovered", self)
+	if !animating:
+		emit_signal("hovered", self)
 
 
 func _on_area_2d_mouse_exited() -> void:
-	emit_signal("hovered_off", self)
+	if !animating:
+		emit_signal("hovered_off", self)

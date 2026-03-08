@@ -53,9 +53,6 @@ func recalculate_ace_y():
 	var AOC_y = ACE_Y_POS - AOC_pos * CARD_WIDTH
 	var AOD_y = ACE_Y_POS - AOD_pos * CARD_WIDTH
 	for card in all_initial:
-		#if not is_instance_valid(card):
-			#print("bruh1")
-			#return
 		if card.ace:  # only move aces
 			var target_y = 0
 			match card.suit:
@@ -77,6 +74,8 @@ func degrade_ace():
 					await get_tree().create_timer(0.6).timeout
 					calc_degrade(degrade_suit)
 					recalculate_ace_y()
+		else:
+			continue
 	if podium.size() == 3 && !transition_started:
 		transition_started = true
 		deck_ref.clickable_signal = true
@@ -182,6 +181,7 @@ func _on_button_pressed() -> void:
 
 func select_ace(ace):
 	player_ace = ace
+	ace.anim_gold()
 	print(player_ace)
 	deck_ref.clickable = true
 	

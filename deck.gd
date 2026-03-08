@@ -135,6 +135,7 @@ func initial_dealing():
 		new_card.side = true
 		new_card.podium = false
 		new_card.side_order = i + 1
+		gamemaster_ref.register_initial(new_card)
 		new_card.position = self.position
 		$"../Dealermind".add_child(new_card)
 		animate_initial_card_tp(new_card, new_position)
