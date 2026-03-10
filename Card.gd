@@ -137,13 +137,14 @@ func podium_display_start():
 	tween.parallel().tween_property($Shade, "global_position:y", screen_mid_y, 0.4)
 
 func anim_gold():
-	$AnimatedSprite2D.visible = true
+	#$AnimatedSprite2D.visible = true
 	animating = true
 	emit_signal("hovered_off", self)
-	$AnimatedSprite2D.play("Anim-GoldAO" + suit_to_letter())
+	#$AnimatedSprite2D.play("Anim-GoldAO" + suit_to_letter())
 	var gold_image = str("res://materials/Card Faces/ver2/Aces/GoldAces/GoldAO" + suit_to_letter() + ".png")
+	print(gold_image)
 	$AOS.texture = load(gold_image)
-	await $AnimatedSprite2D.animation_finished
+	#await $AnimatedSprite2D.animation_finished
 	animating = false
 	$AnimatedSprite2D.visible = false
 	
