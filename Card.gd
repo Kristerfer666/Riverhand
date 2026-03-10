@@ -41,8 +41,8 @@ func _process(delta: float) -> void:
 	
 
 func shade_initial():
-	$Shade.position.x = $AOS.position.x + 4
-	$Shade.position.y = $AOS.position.y + 4
+	$Shade.position.x = $Body/AOS.position.x + 4
+	$Shade.position.y = $Body/AOS.position.y + 4
 
 func random_rotate():
 	rot_degree_x = randf_range(-2, 2)
@@ -72,10 +72,13 @@ func rescale():
 		
 
 	# visual
-	$AOS.scale = scale_to_use
+	$Body/AOS.scale = Vector2(1, 1)
+	$Body.scale = scale_to_use
 	$Shade.scale = scale_to_use
-	$AnimatedSprite2D.scale = scale_to_use
-	$AnimatedSprite2D.visible = false
+	$Body/AnimatedSprite2D.visible = false
+	$Body/GoldSelection.modulate.a = 0
+	print($Body/AOS.scale)
+	print($Body.scale)
 
 	# collision (do NOT scale node)
 	var shape = $Area2D/CollisionShape2D.shape
@@ -97,13 +100,13 @@ func move_ace(new_pos):
 		shadow_track.tween_property($Shade, "position", shade_new_pos, 0.4)
 		shadow_track.parallel().tween_property($Shade, "modulate:a", 0.2, 0.4)
 		shadow_track.parallel().tween_property($Shade, "scale", ACE_SCALE * 0.9, 0.4)
-		shadow_track.parallel().tween_property($AOS, "scale", ACE_SCALE * 1.1, 0.4)
+		shadow_track.parallel().tween_property($Body, "scale", ACE_SCALE * 1.1, 0.4)
 		shadow_track.tween_interval(0.05)
 		var shade_last_pos = calc_shade_last_pos()
 		shadow_track.tween_property($Shade, "position", shade_last_pos, 0.15)
 		shadow_track.parallel().tween_property($Shade, "modulate:a", 0.5, 0.15)
 		shadow_track.parallel().tween_property($Shade, "scale", ACE_SCALE, 0.15)
-		shadow_track.parallel().tween_property($AOS, "scale", ACE_SCALE, 0.15)
+		shadow_track.parallel().tween_property($Body, "scale", ACE_SCALE, 0.15)
 		shadow_track.tween_callback(func():
 			random_rotate()
 		)
@@ -114,7 +117,7 @@ func calc_shade_new_pos(ace_pos):
 	return shade_pos
 	
 func calc_shade_last_pos():
-	var shade_pos = Vector2($AOS.position.x + 4, $AOS.position.y + 4)
+	var shade_pos = Vector2($Body/AOS.position.x + 4, $Body/AOS.position.y + 4)
 	return shade_pos
 
 func podium_display_start():
@@ -122,31 +125,31 @@ func podium_display_start():
 	var tween = create_tween().bind_node(self)
 	tween.set_trans(Tween.TRANS_BACK)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property($AOS, "scale", PODIUM_SCALE * 1.2, 0.6)
-	tween.parallel().tween_property($AOS, "global_position:y", screen_mid_y - 60, 0.6)
+	tween.tween_property($Body/AOS, "scale", PODIUM_SCALE * 1.2, 0.6)
+	tween.parallel().tween_property($Body/AOS, "global_position:y", screen_mid_y - 60, 0.6)
 	tween.parallel().tween_property($Shade, "modulate:a", 0.2, 0.6)
 	tween.parallel().tween_property($Shade, "scale", PODIUM_SCALE * 0.9, 0.6)
 	tween.parallel().tween_property($Shade, "global_position:y", screen_mid_y + 1, 0.6)
 	tween.tween_interval(1)
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property($AOS, "scale", PODIUM_SCALE * podium_index, 0.4)
-	tween.parallel().tween_property($AOS, "global_position:y", screen_mid_y - 3, 0.4)
+	tween.tween_property($Body/AOS, "scale", PODIUM_SCALE * podium_index, 0.4)
+	tween.parallel().tween_property($Body/AOS, "global_position:y", screen_mid_y - 3, 0.4)
 	tween.parallel().tween_property($Shade, "modulate:a", 0.5, 0.4)
 	tween.parallel().tween_property($Shade, "scale", PODIUM_SCALE, 0.4)
 	tween.parallel().tween_property($Shade, "global_position:y", screen_mid_y, 0.4)
 
 func anim_gold():
-	#$AnimatedSprite2D.visible = true
+	#$Body/AnimatedSprite2D.visible = true
 	animating = true
-	emit_signal("hovered_off", self)
-	#$AnimatedSprite2D.play("Anim-GoldAO" + suit_to_letter())
+	emit_signal("hovered", self)
+	#$Body/AnimatedSprite2D.play("Anim-GoldAO" + suit_to_letter())
 	var gold_image = str("res://materials/Card Faces/ver2/Aces/GoldAces/GoldAO" + suit_to_letter() + ".png")
 	print(gold_image)
-	$AOS.texture = load(gold_image)
-	#await $AnimatedSprite2D.animation_finished
+	$Body/AOS.texture = load(gold_image)
+	#await $Body/AnimatedSprite2D.animation_finished
 	animating = false
-	$AnimatedSprite2D.visible = false
+	$Body/AnimatedSprite2D.visible = false
 	
 func suit_to_letter():
 	var suit_letter

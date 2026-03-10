@@ -1,9 +1,10 @@
-[gd_scene load_steps=36 format=3 uid="uid://bcaqxoa50co7u"]
+[gd_scene load_steps=37 format=3 uid="uid://bcaqxoa50co7u"]
 
 [ext_resource type="Script" uid="uid://cxcbntmal54c3" path="res://Card.gd" id="1_rjlel"]
 [ext_resource type="Texture2D" uid="uid://b7gkti2vu6o3w" path="res://materials/Card Faces/ver2/Aces/AOS.png" id="2_6u4wf"]
 [ext_resource type="Texture2D" uid="uid://dksha2ptnd8mb" path="res://materials/shades/shade.png" id="2_ktuci"]
 [ext_resource type="Texture2D" uid="uid://dhmxjhcnhcktx" path="res://materials/Animations/Anim-GoldAOS/Golden_ace_anim.png" id="4_kg30u"]
+[ext_resource type="Texture2D" uid="uid://drtcvnakt1xi1" path="res://materials/Card Faces/ver2/Aces/GoldAces/GoldAcesSelection/GoldSelection.png" id="5_sy11y"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kikvd"]
 size = Vector2(174, 202)
@@ -13,7 +14,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("CardBack:scale")
+tracks/0/path = NodePath("Body/CardBack:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -25,7 +26,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("CardBack:z_index")
+tracks/1/path = NodePath("Body/CardBack:z_index")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -37,7 +38,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("AOS:z_index")
+tracks/2/path = NodePath("Body/AOS:z_index")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -49,7 +50,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("AOS:scale")
+tracks/3/path = NodePath("Body/AOS:scale")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -64,7 +65,7 @@ resource_name = "flip_card"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("CardBack:scale")
+tracks/0/path = NodePath("Body/CardBack:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -76,7 +77,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("CardBack:z_index")
+tracks/1/path = NodePath("Body/CardBack:z_index")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -88,7 +89,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("AOS:z_index")
+tracks/2/path = NodePath("Body/AOS:z_index")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -100,7 +101,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("AOS:scale")
+tracks/3/path = NodePath("Body/AOS:scale")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -317,11 +318,6 @@ position = Vector2(9, -12)
 scale = Vector2(4.35938, 4.35938)
 texture = ExtResource("2_ktuci")
 
-[node name="AOS" type="Sprite2D" parent="."]
-position = Vector2(9, -12)
-scale = Vector2(4.34375, 4.34375)
-texture = ExtResource("2_6u4wf")
-
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
@@ -332,13 +328,20 @@ libraries = {
 &"": SubResource("AnimationLibrary_kg30u")
 }
 
-[node name="CardBack" type="Sprite2D" parent="."]
+[node name="Body" type="Node2D" parent="."]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(9, -12)
-scale = Vector2(4.35156, 4.35156)
+[node name="CardBack" type="Sprite2D" parent="Body"]
+
+[node name="AOS" type="Sprite2D" parent="Body"]
+scale = Vector2(4.34375, 4.34375)
+texture = ExtResource("2_6u4wf")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Body"]
 sprite_frames = SubResource("SpriteFrames_s05jc")
 animation = &"Anim-GoldAOS"
+
+[node name="GoldSelection" type="Sprite2D" parent="Body"]
+texture = ExtResource("5_sy11y")
 
 [connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
 [connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]

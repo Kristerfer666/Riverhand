@@ -68,7 +68,7 @@ func draw_card():
 		var card_scene = preload(HAND_SCENE_PATH)
 		var new_card = card_scene.instantiate()
 		var card_image = str("res://materials/Card Faces/ver2/" + card_drawn_name + ".png")
-		new_card.get_node("AOS").texture = load(card_image)
+		new_card.get_node("Body/AOS").texture = load(card_image)
 		$"../Dealermind".add_child(new_card)
 		new_card.name = "Card"
 		new_card.drag = false
@@ -115,7 +115,7 @@ func initial_dealing():
 		initial_deal = false
 		gamemaster_ref.register_initial(new_ace)
 		new_ace.position = self.position
-		new_ace.get_node("AOS").texture = load(ace_image)
+		new_ace.get_node("Body/AOS").texture = load(ace_image)
 		$"../Dealermind".add_child(new_ace)
 		tween.tween_property(new_ace, "position", ace_position, 0.3)
 		await get_tree().create_timer(0.1).timeout
@@ -125,7 +125,7 @@ func initial_dealing():
 		var card_scene = preload(HAND_SCENE_PATH)
 		var new_card = card_scene.instantiate()
 		new_card.small = true
-		new_card.get_node("AOS").texture = load(back_image)
+		new_card.get_node("Body/AOS").texture = load(back_image)
 		new_card.name = "Card"
 		var new_position = Vector2(CENTER_X_POS, calculate_initial_card_position(i + 1))
 		new_card.num = card_drawn_name
@@ -182,7 +182,7 @@ func podium_display_card(index, card_image):
 	var x_pos
 	var card_scene = preload(HAND_SCENE_PATH)
 	var new_card = card_scene.instantiate()
-	new_card.get_node("AOS").texture = load(card_image)
+	new_card.get_node("Body/Body/AOS").texture = load(card_image)
 	new_card.name = "Card"
 	new_card.drag = false
 	new_card.face_up = true

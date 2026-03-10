@@ -90,13 +90,13 @@ func flip_card(card):
 		var tween = create_tween()
 		tween.set_trans(Tween.TRANS_SINE)
 		tween.set_ease(Tween.EASE_IN_OUT)
-		tween.tween_property($AOS, "scale", 0.0, 0.3)
+		tween.tween_property($Body/AOS, "scale", 0.0, 0.3)
 		var card_image = str("res://materials/Card Faces/ver2/" + card.num + ".png")
 		tween.tween_callback(func():
 			card.get_node("AOS").texture = load(card_image)
 		)
 		tween.tween_interval(0.1)
-		tween.tween_property($AOS, "scale", 1.0, 0.3)
+		tween.tween_property($Body/AOS, "scale", 1.0, 0.3)
 		degrade_suit = card.suit
 
 func move_ace(card):
