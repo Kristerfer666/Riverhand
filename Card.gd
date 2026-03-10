@@ -77,8 +77,6 @@ func rescale():
 	$Shade.scale = scale_to_use
 	$Body/AnimatedSprite2D.visible = false
 	$Body/GoldSelection.modulate.a = 0
-	print($Body/AOS.scale)
-	print($Body.scale)
 
 	# collision (do NOT scale node)
 	var shape = $Area2D/CollisionShape2D.shape
@@ -113,7 +111,7 @@ func move_ace(new_pos):
 		await tween.finished
 	
 func calc_shade_new_pos(ace_pos):
-	var shade_pos = Vector2($Shade.position.x + 14, $Shade.position.y + 30)
+	var shade_pos = Vector2($Shade.position.x + 15, $Shade.position.y + 25)
 	return shade_pos
 	
 func calc_shade_last_pos():

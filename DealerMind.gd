@@ -12,10 +12,13 @@ var dragged_card = null
 var is_hovering = false
 var player_hand
 
+var deck_ref
+
 # =====================
 # READY
 # =====================
 func _ready() -> void:
+	deck_ref = get_node("Deck")
 	screen_size = get_viewport_rect().size
 	player_hand = $"../Hand"
 	$"../Inputmind".left_mouse_button_released.connect(_on_mouse_released)
@@ -83,8 +86,9 @@ func _highlight(card, on: bool):
 		tween.tween_property(body, "scale", Vector2(base_scale + 0.2, base_scale + 0.2), 0.4)
 		tween.parallel().tween_property(shade, "modulate:a", 0.2, 0.3)
 		#tween.parallel().tween_property(shade, "scale", Vector2(base_scale - 0.1, base_scale - 0.1), 0.3)
-		tween.parallel().tween_property(shade, "position:y", body.position.y + 10, 0.4)
-		tween.parallel().tween_property(card.get_node("Body/GoldSelection"), "modulate:a", 1, 0.4)
+		tween.parallel().tween_property(shade, "position:y", body.position.y + 13, 0.4)
+		if card.ace && !$"../Deck".clickable:
+			tween.parallel().tween_property(card.get_node("Body/GoldSelection"), "modulate:a", 1, 0.4)
 		card.z_index = 2
 	else:
 		tween.tween_property(body, "scale", Vector2(base_scale, base_scale), 0.4)

@@ -93,7 +93,7 @@ func flip_card(card):
 		tween.tween_property($Body/AOS, "scale", 0.0, 0.3)
 		var card_image = str("res://materials/Card Faces/ver2/" + card.num + ".png")
 		tween.tween_callback(func():
-			card.get_node("AOS").texture = load(card_image)
+			card.get_node("Body/AOS").texture = load(card_image)
 		)
 		tween.tween_interval(0.1)
 		tween.tween_property($Body/AOS, "scale", 1.0, 0.3)
@@ -182,7 +182,6 @@ func _on_button_pressed() -> void:
 func select_ace(ace):
 	player_ace = ace
 	ace.anim_gold()
-	print(player_ace)
 	deck_ref.clickable = true
 	
 #func start_transition():

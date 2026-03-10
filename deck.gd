@@ -91,7 +91,7 @@ func draw_card():
 		last_last_card = last_card
 		last_card = new_card
 		clickable = false
-		await get_tree().create_timer(1.618).timeout
+		await get_tree().create_timer(0.618).timeout
 		gamemaster_ref.any_move = true
 		if !clickable_signal:
 			clickable = true
