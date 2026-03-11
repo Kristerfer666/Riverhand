@@ -182,7 +182,7 @@ func podium_display_card(index, card_image):
 	var x_pos
 	var card_scene = preload(HAND_SCENE_PATH)
 	var new_card = card_scene.instantiate()
-	new_card.get_node("Body/Body/AOS").texture = load(card_image)
+	new_card.get_node("Body/AOS").texture = load(card_image)
 	new_card.name = "Card"
 	new_card.drag = false
 	new_card.face_up = true
