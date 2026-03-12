@@ -166,17 +166,19 @@ func detect_suit(card):
 	
 func podium_display():
 	for i in range(1, 4):
-		var podium_image = "res://materials/Card Faces/ver2/Aces/%s.png" % gamemaster_ref.podium[i - 1]
+		var podium_image = "res://materials/Card Faces/ver2/Aces/" + detect_chosen(i) + gamemaster_ref.podium[i - 1] + ".png"
+		print(podium_image)
 		podium_display_card(i, podium_image)
 		await get_tree().create_timer(0.4).timeout
 	emit_signal("podium_finished")
-	#var shown_ace_1= podium[-1]
-	#var shown_ace_2= podium[-2]
-	#var shown_ace_3= podium[-3]
-	#var card_image_1 = str("res://materials/Card Faces/ver2/Aces/" + shown_ace_1 + ".png")
-	#var card_image_2 = str("res://materials/Card Faces/ver2/Aces/" + shown_ace_2 + ".png")
-	#var card_image_3 = str("res://materials/Card Faces/ver2/Aces/" + shown_ace_3 + ".png")
 	
+func detect_chosen(i):
+	var texture
+	if gamemaster_ref.podium[i - 1] == gamemaster_ref.player_ace:
+		texture = "GoldAces/Gold"
+	else:
+		texture = ""
+	return texture
 	
 func podium_display_card(index, card_image):
 	var x_pos

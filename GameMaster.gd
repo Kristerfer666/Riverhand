@@ -8,8 +8,8 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-#var podium = ["AOD", "AOS", "AOC"]
-var podium = []
+var podium = ["AOD", "AOS", "AOC"]
+#var podium = []
 var all_initial: Array = []
 
 var player_ace
@@ -180,7 +180,7 @@ func _on_button_pressed() -> void:
 	get_tree().reload_current_scene()
 
 func select_ace(ace):
-	player_ace = ace
+	player_ace = "AO" + ace.suit_to_letter()
 	ace.anim_gold()
 	deck_ref.clickable = true
 	
