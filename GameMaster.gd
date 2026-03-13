@@ -8,8 +8,8 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-var podium = ["AOD", "AOS", "AOC"]
-#var podium = []
+#var podium = ["AOD", "AOS", "AOC"]
+var podium = []
 var all_initial: Array = []
 
 var player_ace
@@ -23,6 +23,7 @@ var restart_btn_ref
 var any_move
 var degrade_suit
 var transition_started = false
+var chosing_ace = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -182,6 +183,7 @@ func _on_button_pressed() -> void:
 func select_ace(ace):
 	player_ace = "AO" + ace.suit_to_letter()
 	ace.anim_gold()
+	chosing_ace = false
 	deck_ref.clickable = true
 	
 #func start_transition():

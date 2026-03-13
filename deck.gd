@@ -140,6 +140,7 @@ func initial_dealing():
 		$"../Dealermind".add_child(new_card)
 		animate_initial_card_tp(new_card, new_position)
 		await get_tree().create_timer(0.1).timeout
+	gamemaster_ref.chosing_ace = true
 	#clickable = true
 
 
