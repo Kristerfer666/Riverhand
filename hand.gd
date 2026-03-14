@@ -18,7 +18,6 @@ func _ready() -> void:
 	game_master_ref = $"../GameMaster"
 	
 
-
 func add_card_to_hand(card):
 	if card not in player_hand:
 		player_hand.insert(0, card)

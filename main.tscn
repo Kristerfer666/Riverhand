@@ -61,9 +61,6 @@ texture = ExtResource("10_dg77c")
 [node name="Table-4_png" type="Sprite2D" parent="CardTable"]
 texture = ExtResource("11_ycdy4")
 
-[node name="PodiumTransition" type="Node2D" parent="."]
-script = ExtResource("12_dg77c")
-
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Control" type="Control" parent="CanvasLayer"]
@@ -73,30 +70,30 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -40.0
-offset_right = 20.0
+offset_left = -960.0
+offset_top = -1080.0
+offset_right = 960.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Control"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -32.5
-offset_top = -20.0
-offset_right = 32.5
-offset_bottom = 20.0
+[node name="Label" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 2
+offset_left = 926.5
+offset_top = 975.0
+offset_right = 993.5
+offset_bottom = 998.0
+text = "RESTART"
+
+[node name="Button" type="Button" parent="CanvasLayer/Control"]
+layout_mode = 2
+offset_right = 1920.0
+offset_bottom = 1080.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="Button" type="Button" parent="CanvasLayer/Control/CenterContainer"]
-layout_mode = 2
-text = "Restart"
 flat = true
 icon_alignment = 1
 
-[connection signal="pressed" from="CanvasLayer/Control/CenterContainer/Button" to="." method="_on_button_pressed"]
+[node name="PodiumTransition" type="Node2D" parent="."]
+script = ExtResource("12_dg77c")
+
+[connection signal="pressed" from="CanvasLayer/Control/Button" to="." method="_on_button_pressed"]

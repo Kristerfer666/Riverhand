@@ -11,7 +11,6 @@ const HAND_SCENE_PATH = "res://scenes/card.tscn"
 var grid := []
 var cols
 var rows
-var big_rect
 
 var podium
 
@@ -19,11 +18,30 @@ func _ready():
 	podium = $"../GameMaster".podium
 	
 func transition_signal():
+	var big_rect = ColorRect.new()
+	big_rect_setting(big_rect)
+	big_rect.modulate.a = 0
 	create_grid()
 	transition_proccess()
-	await big_rect_transition().finished
+	await big_rect_transition(big_rect, 1, 2.5).finished
 	$"../Deck".podium_display()
 	
+func enter_transition_signal():
+	var big_rect = ColorRect.new()
+	big_rect_setting(big_rect)
+	big_rect.modulate.a = 1
+	big_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	await big_rect_transition(big_rect, 0, 2).finished
+	big_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+func final_transition_signal():
+	var big_rect = ColorRect.new()
+	big_rect_setting(big_rect)
+	big_rect.z_index = 100
+	big_rect.color = Color(0, 0, 0, 1)
+	big_rect.modulate.a = 0
+	return big_rect_transition(big_rect, 1, 2.5)
+
 func play_transition():
 	# 播放你的黑色方块动画
 	await get_tree().create_timer(1.5).timeout
@@ -33,14 +51,6 @@ func create_grid():
 	var screen_size = get_viewport_rect().size
 	cols = ceil(screen_size.x / cell_size)
 	rows = ceil(screen_size.y / cell_size)
-
-	big_rect = ColorRect.new()
-	big_rect.color = Color(0, 0, 0, 0.6)
-	big_rect.size = get_viewport_rect().size
-	big_rect.position = get_viewport_rect().position
-	big_rect.scale = get_viewport_rect().size
-	big_rect.modulate.a = 0
-	add_child(big_rect)
 
 	for y in range(rows):
 		for x in range(cols):
@@ -66,11 +76,17 @@ func transition_proccess():
 			.set_ease(Tween.EASE_OUT)
 			index += 1
 		
-func big_rect_transition():
+func big_rect_transition(big_rect, alpha, time):
 	var tween = create_tween()
-	tween.tween_property(big_rect, "modulate:a", 1, 2.5)\
+	tween.tween_property(big_rect, "modulate:a", alpha, time)\
 	.set_trans(Tween.TRANS_CUBIC)\
 	.set_ease(Tween.EASE_OUT)
 	return tween
 
+func big_rect_setting(big_rect):
+	big_rect.color = Color(0, 0, 0, 0.6)
+	big_rect.size = get_viewport_rect().size
+	big_rect.position = get_viewport_rect().position
+	big_rect.scale = get_viewport_rect().size
+	add_child(big_rect)
 	

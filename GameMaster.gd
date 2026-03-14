@@ -8,8 +8,8 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-#var podium = ["AOD", "AOS", "AOC"]
-var podium = []
+var podium = ["AOD", "AOS", "AOC"]
+#var podium = []
 var all_initial: Array = []
 
 var player_ace
@@ -33,12 +33,13 @@ func _ready() -> void:
 	transition_ref = get_node("/root/Main/PodiumTransition")
 	card_ref = $"../card"
 	hand_ref = get_node("/root/Main/Hand")
-	restart_btn_ref = get_node("/root/Main/CanvasLayer/Control/CenterContainer/Button")
+	restart_btn_ref = get_node("/root/Main/CanvasLayer/Control")
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
 	deck_ref.podium_finished.connect(_on_podium_finished)
 	transition_started = false
 	restart_btn_ref.hide()
+	transition_ref.enter_transition_signal()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -178,6 +179,7 @@ func _on_podium_finished():
 	tween.tween_property(restart_btn_ref, "modulate:a", 1.0, 0.5)
 
 func _on_button_pressed() -> void:
+	await transition_ref.final_transition_signal().finished
 	get_tree().reload_current_scene()
 
 func select_ace(ace):
