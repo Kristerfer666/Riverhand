@@ -41,8 +41,8 @@ func final_transition_signal():
 	big_rect.color = Color(0, 0, 0, 1)
 	big_rect.modulate.a = 0
 	var label = get_node("../CanvasLayer/Control/Label")
-	var tween = big_rect_transition(big_rect, 1, 2.5)
-	tween.parallel().tween_property(label, "modulate:a", 0, 2.5)\
+	var tween = big_rect_transition(big_rect, 1, 1.5)
+	tween.parallel().tween_property(label, "modulate:a", 0, 1.5)\
 		.set_trans(Tween.TRANS_CUBIC)\
 		.set_ease(Tween.EASE_OUT)
 	return tween
