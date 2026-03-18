@@ -24,6 +24,7 @@ func transition_signal():
 	create_grid()
 	transition_proccess()
 	await big_rect_transition(big_rect, 1, 2.5).finished
+	big_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$"../Deck".podium_display()
 	
 func enter_transition_signal():
