@@ -80,32 +80,28 @@ func _highlight(card, on: bool):
 	var tween = create_tween().bind_node(card)
 	tween.set_trans(Tween.TRANS_BACK)
 	tween.set_ease(Tween.EASE_OUT)
-	var z_on = 2
-	var z_off = 0
 	var shade = card.get_node("Shade")
 	var body = card.get_node("Body")
 	var base_scale = CARD_SCALE
 	if card.small:
 		base_scale = ACE_SCALE
 	elif card.podium:
-		base_scale = PODIUM_SCALE
-		z_on = 3
-		z_off = 3
+		base_scale = PODIUM_SCALE * card.podium_index
 	if on:
-		tween.tween_property(body, "scale", Vector2(base_scale + 0.2, base_scale + 0.2), 0.4)
+		tween.tween_property(body, "scale", Vector2(base_scale + (0.4 if card.podium else 0.2), base_scale + (0.4 if card.podium else 0.2)), 0.4)
 		tween.parallel().tween_property(shade, "modulate:a", 0.2, 0.3)
 		#tween.parallel().tween_property(shade, "scale", Vector2(base_scale - 0.1, base_scale - 0.1), 0.3)
 		tween.parallel().tween_property(shade, "position:y", body.position.y + 13, 0.4)
 		if card.ace && gamemaster_ref.chosing_ace:
 			tween.parallel().tween_property(card.get_node("Body/GoldSelection"), "modulate:a", 1, 0.4)
-		card.z_index = z_on
+		card.z_index = 4 if card.podium else 2
 	else:
 		tween.tween_property(body, "scale", Vector2(base_scale, base_scale), 0.4)
 		tween.parallel().tween_property(shade, "modulate:a", 0.5, 0.4)
 		#tween.parallel().tween_property(shade, "scale", Vector2(base_scale, base_scale), 0.3)
 		tween.parallel().tween_property(shade, "position:y", body.position.y + 4.5, 0.4)
 		tween.parallel().tween_property(card.get_node("Body/GoldSelection"), "modulate:a", 0, 0.4)
-		card.z_index = z_off
+		card.z_index = 3 if card.podium else 0
 
 
 # =====================

@@ -29,6 +29,7 @@ var correct_y
 var last_move_pos
 var move_tween: Tween
 var screen_mid_y
+var _was_hovering = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -37,7 +38,20 @@ func _ready() -> void:
 	resize_to_screen()
 	
 func _process(delta: float) -> void:
-	pass
+	if not podium:
+		return
+	var mouse_pos = get_global_mouse_position()
+	var body_pos = $Body.global_position
+	var half_size = CARD_HITBOX_SIZE * PODIUM_SCALE * podium_index * 0.5
+	var hovering = abs(mouse_pos.x - body_pos.x) < half_size.x and abs(mouse_pos.y - body_pos.y) < half_size.y
+	if hovering and not _was_hovering:
+		_was_hovering = true
+		if not animating:
+			emit_signal("hovered", self)
+	elif not hovering and _was_hovering:
+		_was_hovering = false
+		if not animating:
+			emit_signal("hovered_off", self)
 	
 
 func shade_initial():
