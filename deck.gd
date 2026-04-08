@@ -92,9 +92,10 @@ func draw_card():
 		last_card = new_card
 		clickable = false
 		await get_tree().create_timer(0.618).timeout
-		gamemaster_ref.any_move = true
-		if !clickable_signal:
-			clickable = true
+		if is_instance_valid(new_card) and new_card == last_card:
+			gamemaster_ref.any_move = true
+			if !clickable_signal:
+				clickable = true
 		
 		
 func initial_dealing():
@@ -143,6 +144,17 @@ func initial_dealing():
 	gamemaster_ref.chosing_ace = true
 	#clickable = true
 
+
+func reset():
+	player_deck = ["S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "H10", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "Sj", "Sq", "Sk", "Hj", "Hq", "Hk", "Cj", "Cq", "Ck", "Dj", "Dq", "Dk"]
+	player_deck.shuffle()
+	clickable = false
+	clickable_signal = false
+	initial_deal = true
+	last_card = null
+	last_last_card = null
+	$Area2D/CollisionShape2D.disabled = false
+	$Sprite2D.visible = true
 
 func animate_initial_card_tp(card, initial_position):
 	var tween = get_tree().create_tween()

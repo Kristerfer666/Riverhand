@@ -48,6 +48,11 @@ func final_transition_signal():
 		.set_ease(Tween.EASE_OUT)
 	return tween
 
+func reset():
+	for child in get_children():
+		child.queue_free()
+	grid.clear()
+
 func play_transition():
 	# 播放你的黑色方块动画
 	await get_tree().create_timer(1.5).timeout

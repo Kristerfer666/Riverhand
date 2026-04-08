@@ -24,7 +24,8 @@ func add_card_to_hand(card):
 		drawn_cards.insert(0, card)
 		update_hand_position()
 		await get_tree().create_timer(0.2).timeout
-		$"../GameMaster".move_ace(card)
+		if is_instance_valid(card) and card in player_hand:
+			$"../GameMaster".move_ace(card)
 	else:
 		animate_card_tp(card, card.inhand_position)
 
@@ -52,3 +53,7 @@ func remove_card_from_hand(card):
 	if card in player_hand:
 		player_hand.erase(card)
 		update_hand_position()
+
+func reset():
+	player_hand.clear()
+	drawn_cards.clear()

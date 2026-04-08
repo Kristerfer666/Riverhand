@@ -8,8 +8,8 @@ var AOH_pos
 var AOC_pos
 var AOD_pos
 
-var podium = ["AOD", "AOS", "AOC"]
-#var podium = []
+#var podium = ["AOD", "AOS", "AOC"]
+var podium = []
 var all_initial: Array = []
 
 var player_ace
@@ -24,6 +24,7 @@ var any_move
 var degrade_suit
 var transition_started = false
 var chosing_ace = false
+var game_generation = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -50,39 +51,54 @@ func register_initial(card):
 	all_initial.append(card)
 
 func recalculate_ace_y():
+	var gen = game_generation
 	var AOS_y = ACE_Y_POS - AOS_pos * CARD_WIDTH
 	var AOH_y = ACE_Y_POS - AOH_pos * CARD_WIDTH
 	var AOC_y = ACE_Y_POS - AOC_pos * CARD_WIDTH
 	var AOD_y = ACE_Y_POS - AOD_pos * CARD_WIDTH
 	for card in all_initial:
-		if card.ace:  # only move aces
-			var target_y = 0
-			match card.suit:
-				1: target_y = AOS_y
-				2: target_y = AOH_y
-				3: target_y = AOC_y
-				4: target_y = AOD_y
-			var target_pos = Vector2(card.position.x, target_y)
-			await get_tree().create_timer(0.1).timeout
-			await card.move_ace(target_pos)
-			degrade_ace()
+		if not is_instance_valid(card) or not card.ace:
+			continue
+		var target_y = 0
+		match card.suit:
+			1: target_y = AOS_y
+			2: target_y = AOH_y
+			3: target_y = AOC_y
+			4: target_y = AOD_y
+		var target_pos = Vector2(card.position.x, target_y)
+		await get_tree().create_timer(0.1).timeout
+		if game_generation != gen or not is_instance_valid(card):
+			return
+		await card.move_ace(target_pos)
+		if game_generation != gen:
+			return
+		degrade_ace()
 
 func degrade_ace():
-	for order in range(1, 6): 
+	var gen = game_generation
+	for order in range(1, 6):
 		if AOS_pos > order and AOH_pos > order and AOC_pos > order and AOD_pos > order:
 			for side in all_initial:
+				if not is_instance_valid(side):
+					continue
 				if side.side_order == order and !side.face_up:
 					flip_card(side)
 					await get_tree().create_timer(0.6).timeout
+					if game_generation != gen:
+						return
 					calc_degrade(degrade_suit)
 					recalculate_ace_y()
 		else:
 			continue
+	if game_generation != gen:
+		return
 	if podium.size() == 3 && !transition_started:
 		transition_started = true
 		deck_ref.clickable_signal = true
 		deck_ref.clickable = false
 		await get_tree().create_timer(1).timeout
+		if game_generation != gen:
+			return
 		transition_ref.transition_signal()
 
 func flip_card(card):
@@ -180,7 +196,44 @@ func _on_podium_finished():
 
 func _on_button_pressed() -> void:
 	await transition_ref.final_transition_signal().finished
-	get_tree().reload_current_scene()
+	full_reset()
+
+func full_reset():
+	game_generation += 1
+	AOS_pos = 0
+	AOH_pos = 0
+	AOC_pos = 0
+	AOD_pos = 0
+	podium.clear()
+	all_initial.clear()
+	player_ace = null
+	any_move = null
+	degrade_suit = null
+	transition_started = false
+	chosing_ace = false
+	# Reset the GameMaster child node, which holds the actual game state used by deck/hand.
+	var gm_child = get_node_or_null("GameMaster")
+	if gm_child:
+		gm_child.game_generation = game_generation
+		gm_child.AOS_pos = 0
+		gm_child.AOH_pos = 0
+		gm_child.AOC_pos = 0
+		gm_child.AOD_pos = 0
+		gm_child.podium.clear()
+		gm_child.all_initial.clear()
+		gm_child.player_ace = null
+		gm_child.any_move = null
+		gm_child.degrade_suit = null
+		gm_child.transition_started = false
+		gm_child.chosing_ace = false
+	restart_btn_ref.get_node("Label").modulate.a = 1.0
+	restart_btn_ref.hide()
+	hand_ref.reset()
+	get_node("/root/Main/Dealermind").reset()
+	transition_ref.reset()
+	get_node("/root/Main/Inputmind").reset()
+	deck_ref.reset()
+	transition_ref.enter_transition_signal()
 
 func select_ace(ace):
 	player_ace = "AO" + ace.suit_to_letter()

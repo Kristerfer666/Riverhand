@@ -104,6 +104,12 @@ func _highlight(card, on: bool):
 		card.z_index = 3 if card.podium else 0
 
 
+func reset():
+	dragged_card = null
+	is_hovering = false
+	for child in get_children():
+		child.queue_free()
+
 # =====================
 # RAYCAST
 # =====================

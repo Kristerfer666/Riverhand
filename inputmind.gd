@@ -34,6 +34,9 @@ func _input(event):
 			raycast_at_cursor("deck")
 
 
+func reset():
+	ace_chosen = false
+
 func raycast_at_cursor(object):
 	var space_state = get_world_2d().direct_space_state
 	var parameters = PhysicsPointQueryParameters2D.new()
