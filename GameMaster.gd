@@ -19,6 +19,7 @@ var transition_ref
 var card_ref
 var hand_ref
 var restart_btn_ref
+var pick_ace_label_ref
 
 var any_move
 var degrade_suit
@@ -35,6 +36,7 @@ func _ready() -> void:
 	card_ref = $"../card"
 	hand_ref = get_node("/root/Main/Hand")
 	restart_btn_ref = get_node("/root/Main/CanvasLayer/Control")
+	pick_ace_label_ref = get_node("/root/Main/CanvasLayer/PickAceLabel")
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
 	deck_ref.podium_finished.connect(_on_podium_finished)
@@ -231,6 +233,7 @@ func full_reset():
 		gm_child.chosing_ace = false
 	restart_btn_ref.get_node("Label").modulate.a = 1.0
 	restart_btn_ref.hide()
+	pick_ace_label_ref.visible = false
 	hand_ref.reset()
 	get_node("/root/Main/Dealermind").reset()
 	transition_ref.reset()
@@ -238,11 +241,23 @@ func full_reset():
 	deck_ref.reset()
 	transition_ref.enter_transition_signal()
 
+func begin_ace_selection():
+	chosing_ace = true
+	pick_ace_label_ref.modulate.a = 0.0
+	pick_ace_label_ref.visible = true
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pick_ace_label_ref, "modulate:a", 1.0, 0.5)
+
 func select_ace(ace):
 	player_ace = "AO" + ace.suit_to_letter()
 	ace.anim_gold()
 	chosing_ace = false
 	deck_ref.clickable = true
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(pick_ace_label_ref, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(func(): pick_ace_label_ref.visible = false)
 	
 #func start_transition():
 	#var transition_scene = preload("res://scenes/transition_(control).tscn")
