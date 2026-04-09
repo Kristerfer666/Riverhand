@@ -72,7 +72,10 @@ func recalculate_ace_y():
 		await card.move_ace(target_pos)
 		if game_generation != gen:
 			return
-		degrade_ace()
+	await get_tree().create_timer(0.2).timeout
+	if game_generation != gen:
+		return
+	degrade_ace()
 
 func degrade_ace():
 	var gen = game_generation
@@ -83,7 +86,7 @@ func degrade_ace():
 					continue
 				if side.side_order == order and !side.face_up:
 					flip_card(side)
-					await get_tree().create_timer(0.6).timeout
+					await get_tree().create_timer(0.2).timeout
 					if game_generation != gen:
 						return
 					calc_degrade(degrade_suit)
