@@ -178,6 +178,7 @@ func detect_suit(card):
 		pass
 	
 func podium_display():
+	gamemaster_ref.show_game_end()
 	for i in range(1, 4):
 		var podium_image = "res://materials/Card Faces/ver2/Aces/" + detect_chosen(i) + gamemaster_ref.podium[i - 1] + ".png"
 		print(podium_image)

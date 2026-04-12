@@ -20,6 +20,7 @@ var card_ref
 var hand_ref
 var restart_btn_ref
 var pick_ace_label_ref
+var game_end_label_ref
 
 var any_move
 var degrade_suit
@@ -37,6 +38,7 @@ func _ready() -> void:
 	hand_ref = get_node("/root/Main/Hand")
 	restart_btn_ref = get_node("/root/Main/CanvasLayer/Control")
 	pick_ace_label_ref = get_node("/root/Main/CanvasLayer/PickAceLabel")
+	game_end_label_ref = get_node("/root/Main/CanvasLayer/GameEndLabel")
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
 	deck_ref.podium_finished.connect(_on_podium_finished)
@@ -234,12 +236,20 @@ func full_reset():
 	restart_btn_ref.get_node("Label").modulate.a = 1.0
 	restart_btn_ref.hide()
 	pick_ace_label_ref.visible = false
+	game_end_label_ref.visible = false
 	hand_ref.reset()
 	get_node("/root/Main/Dealermind").reset()
 	transition_ref.reset()
 	get_node("/root/Main/Inputmind").reset()
 	deck_ref.reset()
 	transition_ref.enter_transition_signal()
+
+func show_game_end():
+	game_end_label_ref.modulate.a = 0.0
+	game_end_label_ref.visible = true
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(game_end_label_ref, "modulate:a", 1.0, 0.5)
 
 func begin_ace_selection():
 	chosing_ace = true

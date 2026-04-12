@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c2p85hkst1br8"]
+[gd_scene load_steps=15 format=3 uid="uid://c2p85hkst1br8"]
 
 [ext_resource type="Script" uid="uid://hd47qoeq76yw" path="res://DealerMind.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://dj3jftihf65p2" path="res://GameMaster.gd" id="1_7mycd"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://jqn6q552tna5" path="res://materials/background/table-3.png.png" id="10_dg77c"]
 [ext_resource type="Texture2D" uid="uid://bhvkgol6dpy08" path="res://materials/background/table-4.png.png" id="11_ycdy4"]
 [ext_resource type="Script" uid="uid://bsbqm0ohoxh8y" path="res://podium_transition.gd" id="12_dg77c"]
+[ext_resource type="FontFile" uid="uid://dtg1peb5fga3m" path="res://materials/Fonts/NineteenNinetyThree-L1Ay.ttf" id="12_ycdy4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1bvp3"]
 size = Vector2(20, 24)
@@ -99,8 +100,20 @@ offset_left = 760.0
 offset_top = 515.0
 offset_right = 1160.0
 offset_bottom = 565.0
+theme_override_fonts/font = ExtResource("12_ycdy4")
 theme_override_font_sizes/font_size = 32
 text = "Pick your Ace"
+horizontal_alignment = 1
+
+[node name="GameEndLabel" type="Label" parent="CanvasLayer"]
+visible = false
+offset_left = 760.0
+offset_top = 290.0
+offset_right = 1160.0
+offset_bottom = 340.0
+theme_override_fonts/font = ExtResource("12_ycdy4")
+theme_override_font_sizes/font_size = 32
+text = "Game End"
 horizontal_alignment = 1
 
 [node name="PodiumTransition" type="Node2D" parent="."]
