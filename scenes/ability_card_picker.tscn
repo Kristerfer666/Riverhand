@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=3 uid="uid://0cmy221a2d8o"]
+
+[ext_resource type="Script" uid="uid://bjqvwmwejajob" path="res://AbilityCardPicker.gd" id="1"]
+[ext_resource type="FontFile" uid="uid://dtg1peb5fga3m" path="res://materials/Fonts/NineteenNinetyThree-L1Ay.ttf" id="2_v0rr5"]
+
+[node name="AbilityCardPicker" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchor_left = 0.5
+anchor_top = 0.4
+anchor_right = 0.9
+anchor_bottom = 0.8
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CardsContainer" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.7
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="CardOption0" type="Button" parent="Control/CardsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Card 1"
+
+[node name="CardOption1" type="Button" parent="Control/CardsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Card 2"
+
+[node name="CardOption2" type="Button" parent="Control/CardsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Card 3"
+
+[node name="ConfirmButton" type="Button" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.3
+anchor_top = 0.75
+anchor_right = 0.7
+anchor_bottom = 0.85
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_v0rr5")
+text = "Confirm"

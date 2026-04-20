@@ -53,6 +53,3 @@ func raycast_at_cursor(object):
 				gamemaster_ref.select_ace(card_found)
 			#elif card_found && !card_found.drag:
 				#dealermind_ref.flip_card(card_found)
-		elif result_collision_mask == COLLISION_MASK_DECK && object == "deck":
-			if deck_ref.has_method("draw_card"):# && hand_ref.drawn_cards.size() < 2:
-				deck_ref.draw_card()

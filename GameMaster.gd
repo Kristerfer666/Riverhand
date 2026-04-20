@@ -28,6 +28,9 @@ var transition_started = false
 var chosing_ace = false
 var game_generation = 0
 
+var ability_picker_ref
+var picker_triggered_this_cycle = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	#for i in 3:
@@ -42,9 +45,14 @@ func _ready() -> void:
 	for v in ["AOS_pos", "AOH_pos", "AOC_pos", "AOD_pos"]:
 		set(v, 0)
 	deck_ref.podium_finished.connect(_on_podium_finished)
+	var picker_scene = preload("res://scenes/ability_card_picker.tscn")
+	ability_picker_ref = picker_scene.instantiate()
+	get_node("/root/Main/CanvasLayer").add_child(ability_picker_ref)
+	ability_picker_ref.card_confirmed.connect(_on_ability_card_confirmed)
 	transition_started = false
 	restart_btn_ref.hide()
-	transition_ref.enter_transition_signal()
+	await transition_ref.enter_transition_signal()
+	deck_ref.draw_card()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -79,7 +87,6 @@ func recalculate_ace_y():
 	await get_tree().create_timer(0.2).timeout
 	if game_generation != gen:
 		return
-	degrade_ace()
 
 func degrade_ace():
 	var gen = game_generation
@@ -90,11 +97,15 @@ func degrade_ace():
 					continue
 				if side.side_order == order and !side.face_up:
 					flip_card(side)
-					await get_tree().create_timer(0.2).timeout
+					await get_tree().create_timer(0.7).timeout
 					if game_generation != gen:
 						return
 					calc_degrade(degrade_suit)
-					recalculate_ace_y()
+					await recalculate_ace_y()
+					if game_generation != gen:
+						return
+					await degrade_ace()
+					return
 		else:
 			continue
 	if game_generation != gen:
@@ -107,6 +118,9 @@ func degrade_ace():
 		if game_generation != gen:
 			return
 		transition_ref.transition_signal()
+	if not picker_triggered_this_cycle and not transition_started:
+		picker_triggered_this_cycle = true
+		ability_picker_ref.show_picker()
 
 func flip_card(card):
 	if !card.face_up:
@@ -125,6 +139,7 @@ func flip_card(card):
 		degrade_suit = card.suit
 
 func move_ace(card):
+	picker_triggered_this_cycle = false
 	var ace_name = ""
 	match card.suit:
 		1:
@@ -167,7 +182,8 @@ func move_ace(card):
 		#podium.erase(ace_name)
 	#podium.insert(0, ace_name)
 	#print(podium)
-	recalculate_ace_y()
+	await recalculate_ace_y()
+	await degrade_ace()
 	
 
 func calc_degrade(suit_num):
@@ -204,6 +220,8 @@ func _on_podium_finished():
 func _on_button_pressed() -> void:
 	await transition_ref.final_transition_signal().finished
 	full_reset()
+	await transition_ref.enter_transition_signal()
+	deck_ref.draw_card()
 
 func full_reset():
 	game_generation += 1
@@ -218,6 +236,7 @@ func full_reset():
 	degrade_suit = null
 	transition_started = false
 	chosing_ace = false
+	picker_triggered_this_cycle = false
 	# Reset the GameMaster child node, which holds the actual game state used by deck/hand.
 	var gm_child = get_node_or_null("GameMaster")
 	if gm_child:
@@ -233,6 +252,8 @@ func full_reset():
 		gm_child.degrade_suit = null
 		gm_child.transition_started = false
 		gm_child.chosing_ace = false
+		gm_child.picker_triggered_this_cycle = false
+	ability_picker_ref.reset()
 	restart_btn_ref.get_node("Label").modulate.a = 1.0
 	restart_btn_ref.hide()
 	pick_ace_label_ref.visible = false
@@ -242,7 +263,6 @@ func full_reset():
 	transition_ref.reset()
 	get_node("/root/Main/Inputmind").reset()
 	deck_ref.reset()
-	transition_ref.enter_transition_signal()
 
 func show_game_end():
 	game_end_label_ref.modulate.a = 0.0
@@ -263,12 +283,15 @@ func select_ace(ace):
 	player_ace = "AO" + ace.suit_to_letter()
 	ace.anim_gold()
 	chosing_ace = false
-	deck_ref.clickable = true
+	ability_picker_ref.show_picker()
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property(pick_ace_label_ref, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(func(): pick_ace_label_ref.visible = false)
 	
+func _on_ability_card_confirmed(card_index: int) -> void:
+	deck_ref.auto_draw()
+
 #func start_transition():
 	#var transition_scene = preload("res://scenes/transition_(control).tscn")
 	#var transition = transition_scene.instantiate()

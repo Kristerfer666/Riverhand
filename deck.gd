@@ -94,10 +94,16 @@ func draw_card():
 		await get_tree().create_timer(0.618).timeout
 		if is_instance_valid(new_card) and new_card == last_card:
 			gamemaster_ref.any_move = true
-			if !clickable_signal:
-				clickable = true
+			# clickable is not re-enabled here; the ability picker confirmation
+			# calls auto_draw() which sets clickable before each draw
 		
 		
+func auto_draw() -> void:
+	if not initial_deal:
+		clickable = true
+		draw_card()
+
+
 func initial_dealing():
 	for i in range(4):
 		var tween = create_tween()
