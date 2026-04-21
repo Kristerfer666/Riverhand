@@ -14,7 +14,7 @@ var game_master_ref
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	center_screen_x = (get_viewport_rect().size.x / 5) * 3
+	center_screen_x = 1700
 	game_master_ref = $"../GameMaster"
 	
 

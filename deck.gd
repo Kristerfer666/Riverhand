@@ -52,7 +52,8 @@ func _process(delta: float) -> void:
 	
 func resize_to_screen():
 	position.y = get_viewport_rect().size.y / 8 * 2
-	position.x = get_viewport_rect().size.x / 6 * 5
+	position.x = get_viewport_rect().size.x + 200
+	$Sprite2D.visible = false
 
 
 func draw_card():

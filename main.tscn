@@ -83,6 +83,7 @@ offset_left = 926.5
 offset_top = 975.0
 offset_right = 993.5
 offset_bottom = 998.0
+theme_override_fonts/font = ExtResource("12_ycdy4")
 text = "RESTART"
 
 [node name="Button" type="Button" parent="CanvasLayer/Control"]
