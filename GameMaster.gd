@@ -150,7 +150,9 @@ func move_ace(card):
 					podium.append(ace_name)
 			else:
 				any_move = false
-				
+				await get_tree().create_timer(1.0).timeout
+				deck_ref.auto_draw()
+				return
 		2:
 			ace_name = "AOH"
 			if AOH_pos < 6:
@@ -159,6 +161,9 @@ func move_ace(card):
 					podium.append(ace_name)
 			else:
 				any_move = false
+				await get_tree().create_timer(1.0).timeout
+				deck_ref.auto_draw()
+				return
 		3:
 			ace_name = "AOC"
 			if AOC_pos < 6:
@@ -167,6 +172,9 @@ func move_ace(card):
 					podium.append(ace_name)
 			else:
 				any_move = false
+				await get_tree().create_timer(1.0).timeout
+				deck_ref.auto_draw()
+				return
 		4:
 			ace_name = "AOD"
 			if AOD_pos < 6:
@@ -175,6 +183,9 @@ func move_ace(card):
 					podium.append(ace_name)
 			else:
 				any_move = false
+				await get_tree().create_timer(1.0).timeout
+				deck_ref.auto_draw()
+				return
 		_:
 			return
 	# 统一处理 podium（适用于所有花色）
