@@ -210,7 +210,7 @@ func podium_display_card(index, card_image):
 	new_card.drag = false
 	new_card.face_up = true
 	new_card.podium = true
-	new_card.z_index = 3
+	new_card.z_index = 15
 	new_card.position.y = get_viewport_rect().size.y / 2
 	if index == 1:
 		x_pos = 0

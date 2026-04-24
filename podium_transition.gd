@@ -20,6 +20,7 @@ func _ready():
 func transition_signal():
 	var big_rect = ColorRect.new()
 	big_rect_setting(big_rect)
+	big_rect.z_index = 10
 	big_rect.modulate.a = 0
 	create_grid()
 	transition_proccess()
@@ -76,6 +77,7 @@ func create_grid():
 			rect.scale = Vector2(0.01, 0.01)
 			rect.pivot_offset = rect.size / 2
 			rect.modulate.a = 0
+			rect.z_index = 10
 			add_child(rect)
 			grid.append(rect)
 
