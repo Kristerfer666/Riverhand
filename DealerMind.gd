@@ -94,14 +94,14 @@ func _highlight(card, on: bool):
 		tween.parallel().tween_property(shade, "position:y", body.position.y + 13, 0.4)
 		if card.ace && gamemaster_ref.chosing_ace:
 			tween.parallel().tween_property(card.get_node("Body/GoldSelection"), "modulate:a", 1, 0.4)
-		card.z_index = 4 if card.podium else 2
+		card.z_index = 16 if card.podium else 2
 	else:
 		tween.tween_property(body, "scale", Vector2(base_scale, base_scale), 0.4)
 		tween.parallel().tween_property(shade, "modulate:a", 0.5, 0.4)
 		#tween.parallel().tween_property(shade, "scale", Vector2(base_scale, base_scale), 0.3)
 		tween.parallel().tween_property(shade, "position:y", body.position.y + 4.5, 0.4)
 		tween.parallel().tween_property(card.get_node("Body/GoldSelection"), "modulate:a", 0, 0.4)
-		card.z_index = 3 if card.podium else 0
+		card.z_index = 15 if card.podium else 0
 
 
 func reset():

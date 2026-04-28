@@ -31,10 +31,25 @@ var game_generation = 0
 var ability_picker_ref
 var picker_triggered_this_cycle = false
 
-# Called when the node enters the scene tree for the first time.
+# ── Active effect flags (cleared at end of each round) ──────────────────────
+var timeout_active: bool = false       # no ace movement of any kind this round
+var overextension_active: bool = false # advances become retreats this round
+var transpose_active: bool = false     # swap player ace with last-advanced ace at round end
+var last_advanced_suit: int = 0        # suit that advanced this round (for transpose)
+var anticipate_active: bool = false    # redirect other-ace advances to player's ace this round
+var second_chance_active: bool = false # draw an extra card this round before showing picker
+
+# ── Enemy card tracking (set from reveal before counter resolution) ──────────
+# Counter cards are resolved first; if one matches, enemy_card_disabled is set
+# and the enemy card's apply_effect call is skipped when the AI system is built.
+var enemy_pending_card_id: String = ""
+var enemy_pending_card_type: String = ""  # "boost" | "conspiracy" | "force" | "counter" | ""
+var enemy_card_disabled: bool = false     # true = a counter card cancelled the enemy's card
+
+
+# ── Lifecycle ────────────────────────────────────────────────────────────────
+
 func _ready() -> void:
-	#for i in 3:
-		#podium.append("a")
 	deck_ref = get_node("/root/Main/Deck")
 	transition_ref = get_node("/root/Main/PodiumTransition")
 	card_ref = $"../card"
@@ -55,12 +70,216 @@ func _ready() -> void:
 	deck_ref.draw_card()
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
+
 
 func register_initial(card):
 	all_initial.append(card)
+
+
+func full_reset():
+	game_generation += 1
+	AOS_pos = 0
+	AOH_pos = 0
+	AOC_pos = 0
+	AOD_pos = 0
+	podium.clear()
+	all_initial.clear()
+	player_ace = null
+	any_move = null
+	degrade_suit = null
+	transition_started = false
+	chosing_ace = false
+	picker_triggered_this_cycle = false
+	timeout_active = false
+	overextension_active = false
+	transpose_active = false
+	last_advanced_suit = 0
+	anticipate_active = false
+	second_chance_active = false
+	enemy_pending_card_id = ""
+	enemy_pending_card_type = ""
+	enemy_card_disabled = false
+	var gm_child = get_node_or_null("GameMaster")
+	if gm_child:
+		gm_child.game_generation = game_generation
+		gm_child.AOS_pos = 0
+		gm_child.AOH_pos = 0
+		gm_child.AOC_pos = 0
+		gm_child.AOD_pos = 0
+		gm_child.podium.clear()
+		gm_child.all_initial.clear()
+		gm_child.player_ace = null
+		gm_child.any_move = null
+		gm_child.degrade_suit = null
+		gm_child.transition_started = false
+		gm_child.chosing_ace = false
+		gm_child.picker_triggered_this_cycle = false
+		gm_child.timeout_active = false
+		gm_child.overextension_active = false
+		gm_child.transpose_active = false
+		gm_child.last_advanced_suit = 0
+		gm_child.anticipate_active = false
+		gm_child.second_chance_active = false
+		gm_child.enemy_pending_card_id = ""
+		gm_child.enemy_pending_card_type = ""
+		gm_child.enemy_card_disabled = false
+	ability_picker_ref.reset()
+	restart_btn_ref.get_node("Label").modulate.a = 1.0
+	restart_btn_ref.hide()
+	pick_ace_label_ref.visible = false
+	game_end_label_ref.visible = false
+	hand_ref.reset()
+	get_node("/root/Main/Dealermind").reset()
+	transition_ref.reset()
+	get_node("/root/Main/Inputmind").reset()
+	deck_ref.reset()
+
+
+# ── Internal ace-position primitives (no effect checks) ─────────────────────
+# These are the only places that read/write ace positions and the podium list.
+# All higher-level code must go through the public API below.
+
+func _suit_to_ace_name(suit: int) -> String:
+	match suit:
+		1: return "AOS"
+		2: return "AOH"
+		3: return "AOC"
+		4: return "AOD"
+	return ""
+
+func _ace_name_to_suit(ace_name: String) -> int:
+	match ace_name:
+		"AOS": return 1
+		"AOH": return 2
+		"AOC": return 3
+		"AOD": return 4
+	return 0
+
+func _get_ace_pos(suit: int) -> int:
+	match suit:
+		1: return AOS_pos
+		2: return AOH_pos
+		3: return AOC_pos
+		4: return AOD_pos
+	return 0
+
+func _set_ace_pos(suit: int, val: int) -> void:
+	match suit:
+		1: AOS_pos = val
+		2: AOH_pos = val
+		3: AOC_pos = val
+		4: AOD_pos = val
+
+func _advance_ace_pos(suit: int) -> bool:
+	var pos = _get_ace_pos(suit)
+	if pos >= 6:
+		return false
+	_set_ace_pos(suit, pos + 1)
+	var ace_name = _suit_to_ace_name(suit)
+	if _get_ace_pos(suit) == 6 and ace_name not in podium:
+		podium.append(ace_name)
+	return true
+
+func _retreat_ace_pos(suit: int) -> void:
+	var pos = _get_ace_pos(suit)
+	if pos <= 0:
+		return
+	_set_ace_pos(suit, pos - 1)
+	var ace_name = _suit_to_ace_name(suit)
+	if podium.has(ace_name):
+		podium.erase(ace_name)
+
+
+# ── Public effect-aware ace movement API ─────────────────────────────────────
+# All card abilities and game logic that moves aces must call these, never the
+# primitives directly. This ensures active effects (timeout, overextension,
+# future cards) are always respected.
+
+# Returns "advanced", "retreated", "redirected", "stayed", or "maxed".
+# "maxed"      → ace was already at 6, caller should trigger auto-draw.
+# "retreated"  → overextension converted the advance into a retreat.
+# "redirected" → anticipate redirected the advance to the player's ace.
+# "stayed"     → anticipate blocked the advance entirely (player's own card).
+# Timeout is handled upstream in move_ace before this is ever called.
+func advance_ace(suit: int) -> String:
+	if overextension_active:
+		_retreat_ace_pos(suit)
+		return "retreated"
+	if anticipate_active:
+		var player_suit = _ace_name_to_suit(player_ace)
+		if suit == player_suit:
+			_retreat_ace_pos(player_suit)
+			return "retreated"
+		if not _advance_ace_pos(player_suit):
+			return "stayed"  # player's ace already maxed, nothing moves
+		return "redirected"
+	if not _advance_ace_pos(suit):
+		return "maxed"
+	return "advanced"
+
+# Retreats one ace by one step. Respects timeout (no-op when active).
+func retreat_ace(suit: int) -> void:
+	if timeout_active:
+		return
+	_retreat_ace_pos(suit)
+
+# Retreats all aces to position 0. Bypasses effect flags (used by Bite Dust
+# which fires before the draw, outside any round-effect window).
+func retreat_all_aces() -> void:
+	for suit in [1, 2, 3, 4]:
+		_set_ace_pos(suit, 0)
+	podium.clear()
+
+# Instantly swaps two aces' positions AND their visual identities (texture,
+# suit, num) so neither node moves on screen. Allowed even during timeout.
+func _do_instant_transpose(suit_a: int, suit_b: int) -> void:
+	var pos_a = _get_ace_pos(suit_a)
+	var pos_b = _get_ace_pos(suit_b)
+	_set_ace_pos(suit_a, pos_b)
+	_set_ace_pos(suit_b, pos_a)
+	for suit in [suit_a, suit_b]:
+		var name = _suit_to_ace_name(suit)
+		if _get_ace_pos(suit) == 6 and name not in podium:
+			podium.append(name)
+		elif _get_ace_pos(suit) < 6 and podium.has(name):
+			podium.erase(name)
+	var node_a: Node = null
+	var node_b: Node = null
+	for card in all_initial:
+		if not is_instance_valid(card) or not card.ace:
+			continue
+		if card.suit == suit_a:
+			node_a = card
+		elif card.suit == suit_b:
+			node_b = card
+	if node_a == null or node_b == null:
+		return
+	node_a.suit = suit_b
+	node_b.suit = suit_a
+	var tex = node_a.get_node("Body/AOS").texture
+	node_a.get_node("Body/AOS").texture = node_b.get_node("Body/AOS").texture
+	node_b.get_node("Body/AOS").texture = tex
+	var num = node_a.num
+	node_a.num = node_b.num
+	node_b.num = num
+
+# Swaps the positions of two aces. Allowed even during timeout.
+func swap_aces(suit_a: int, suit_b: int) -> void:
+	var pos_a = _get_ace_pos(suit_a)
+	var pos_b = _get_ace_pos(suit_b)
+	_set_ace_pos(suit_a, pos_b)
+	_set_ace_pos(suit_b, pos_a)
+	for suit in [suit_a, suit_b]:
+		var name = _suit_to_ace_name(suit)
+		if _get_ace_pos(suit) == 6 and name not in podium:
+			podium.append(name)
+		elif _get_ace_pos(suit) < 6 and podium.has(name):
+			podium.erase(name)
+
+
+# ── Core game flow ───────────────────────────────────────────────────────────
 
 func recalculate_ace_y():
 	var gen = game_generation
@@ -88,26 +307,28 @@ func recalculate_ace_y():
 	if game_generation != gen:
 		return
 
+
 func degrade_ace():
 	var gen = game_generation
-	for order in range(1, 6):
-		if AOS_pos > order and AOH_pos > order and AOC_pos > order and AOD_pos > order:
-			for side in all_initial:
-				if not is_instance_valid(side):
-					continue
-				if side.side_order == order and !side.face_up:
-					flip_card(side)
-					await get_tree().create_timer(0.7).timeout
-					if game_generation != gen:
+	if not timeout_active:
+		for order in range(1, 6):
+			if AOS_pos > order and AOH_pos > order and AOC_pos > order and AOD_pos > order:
+				for side in all_initial:
+					if not is_instance_valid(side):
+						continue
+					if side.side_order == order and !side.face_up:
+						flip_card(side)
+						await get_tree().create_timer(0.7).timeout
+						if game_generation != gen:
+							return
+						calc_degrade(degrade_suit)
+						await recalculate_ace_y()
+						if game_generation != gen:
+							return
+						await degrade_ace()
 						return
-					calc_degrade(degrade_suit)
-					await recalculate_ace_y()
-					if game_generation != gen:
-						return
-					await degrade_ace()
-					return
-		else:
-			continue
+			else:
+				continue
 	if game_generation != gen:
 		return
 	if podium.size() == 3 && !transition_started:
@@ -119,8 +340,25 @@ func degrade_ace():
 			return
 		transition_ref.transition_signal()
 	if not picker_triggered_this_cycle and not transition_started:
+		# Second Chance: trigger extra draw before the picker shows.
+		# Other round-scoped flags stay active for the second draw.
+		if second_chance_active:
+			second_chance_active = false
+			deck_ref.auto_draw()
+			return
+		# Round truly ends here — apply end-of-round effects, clear all flags.
+		if transpose_active and last_advanced_suit != 0:
+			transpose_active = false
+			var player_suit = _ace_name_to_suit(player_ace)
+			if player_suit != last_advanced_suit:
+				_do_instant_transpose(player_suit, last_advanced_suit)
+		timeout_active = false
+		overextension_active = false
+		transpose_active = false
+		anticipate_active = false
 		picker_triggered_this_cycle = true
 		ability_picker_ref.show_picker()
+
 
 func flip_card(card):
 	if !card.face_up:
@@ -138,142 +376,75 @@ func flip_card(card):
 		tween.tween_property($Body/AOS, "scale", 1.0, 0.3)
 		degrade_suit = card.suit
 
+
 func move_ace(card):
 	picker_triggered_this_cycle = false
-	var ace_name = ""
-	match card.suit:
-		1:
-			ace_name = "AOS"
-			if AOS_pos < 6:
-				AOS_pos += 1
-				if AOS_pos == 6 && ace_name not in podium:
-					podium.append(ace_name)
-			else:
-				any_move = false
-				await get_tree().create_timer(1.0).timeout
-				deck_ref.auto_draw()
-				return
-		2:
-			ace_name = "AOH"
-			if AOH_pos < 6:
-				AOH_pos += 1
-				if AOH_pos == 6 && ace_name not in podium:
-					podium.append(ace_name)
-			else:
-				any_move = false
-				await get_tree().create_timer(1.0).timeout
-				deck_ref.auto_draw()
-				return
-		3:
-			ace_name = "AOC"
-			if AOC_pos < 6:
-				AOC_pos += 1
-				if AOC_pos == 6 && ace_name not in podium:
-					podium.append(ace_name)
-			else:
-				any_move = false
-				await get_tree().create_timer(1.0).timeout
-				deck_ref.auto_draw()
-				return
-		4:
-			ace_name = "AOD"
-			if AOD_pos < 6:
-				AOD_pos += 1
-				if AOD_pos == 6 && ace_name not in podium:
-					podium.append(ace_name)
-			else:
-				any_move = false
-				await get_tree().create_timer(1.0).timeout
-				deck_ref.auto_draw()
-				return
-		_:
+	if timeout_active:
+		# Nothing moves this round — skip directly to end-of-round.
+		await _end_round()
+		return
+	var result = advance_ace(card.suit)
+	match result:
+		"maxed":
+			any_move = false
+			await get_tree().create_timer(1.0).timeout
+			deck_ref.auto_draw()
 			return
-	# 统一处理 podium（适用于所有花色）
-	#if podium.has(ace_name):
-		#podium.erase(ace_name)
-	#podium.insert(0, ace_name)
-	#print(podium)
-	await recalculate_ace_y()
-	await degrade_ace()
-	
+		"advanced":
+			last_advanced_suit = card.suit
+			await recalculate_ace_y()
+			await degrade_ace()
+		"retreated":
+			await recalculate_ace_y()
+			await degrade_ace()
+		"redirected":
+			last_advanced_suit = _ace_name_to_suit(player_ace)
+			await recalculate_ace_y()
+			await degrade_ace()
+		"stayed":
+			await get_tree().create_timer(0.3).timeout
+			await degrade_ace()
 
-func calc_degrade(suit_num):
-	if suit_num == 1:
-		if AOS_pos > 0:
-			AOS_pos -= 1
-			if podium.has("AOS"):
-				podium.erase("AOS")
-	elif suit_num == 2:
-		if AOH_pos > 0:
-			AOH_pos -= 1
-			if podium.has("AOH"):
-				podium.erase("AOH")
-	elif suit_num == 3:
-		if AOC_pos > 0:
-			AOC_pos -= 1
-			if podium.has("AOC"):
-				podium.erase("AOC")
-	elif suit_num == 4:
-		if AOD_pos > 0:
-			AOD_pos -= 1
-			if podium.has("AOD"):
-				podium.erase("AOD")
-	else:
-		pass
 
-func _on_podium_finished():
-	restart_btn_ref.modulate.a = 0
-	restart_btn_ref.show()
-	
-	var tween = create_tween()
-	tween.tween_property(restart_btn_ref, "modulate:a", 1.0, 0.5)
+# Explicitly ends the current round: clears flags, then either starts the
+# win transition (if 3 aces are on the podium) or shows the picker.
+# Used when no ace movement occurred (timeout) so the normal degrade→picker
+# chain would never fire on its own.
+func _end_round() -> void:
+	var gen = game_generation
+	timeout_active = false
+	overextension_active = false
+	if podium.size() == 3 and not transition_started:
+		transition_started = true
+		deck_ref.clickable_signal = true
+		deck_ref.clickable = false
+		await get_tree().create_timer(1).timeout
+		if game_generation != gen:
+			return
+		transition_ref.transition_signal()
+		return
+	if not picker_triggered_this_cycle and not transition_started:
+		if transpose_active and last_advanced_suit != 0:
+			transpose_active = false
+			var player_suit = _ace_name_to_suit(player_ace)
+			if player_suit != last_advanced_suit:
+				_do_instant_transpose(player_suit, last_advanced_suit)
+		timeout_active = false
+		overextension_active = false
+		transpose_active = false
+		anticipate_active = false
+		await get_tree().create_timer(0.3).timeout
+		if game_generation != gen:
+			return
+		picker_triggered_this_cycle = true
+		ability_picker_ref.show_picker()
 
-func _on_button_pressed() -> void:
-	await transition_ref.final_transition_signal().finished
-	full_reset()
-	await transition_ref.enter_transition_signal()
-	deck_ref.draw_card()
 
-func full_reset():
-	game_generation += 1
-	AOS_pos = 0
-	AOH_pos = 0
-	AOC_pos = 0
-	AOD_pos = 0
-	podium.clear()
-	all_initial.clear()
-	player_ace = null
-	any_move = null
-	degrade_suit = null
-	transition_started = false
-	chosing_ace = false
-	picker_triggered_this_cycle = false
-	# Reset the GameMaster child node, which holds the actual game state used by deck/hand.
-	var gm_child = get_node_or_null("GameMaster")
-	if gm_child:
-		gm_child.game_generation = game_generation
-		gm_child.AOS_pos = 0
-		gm_child.AOH_pos = 0
-		gm_child.AOC_pos = 0
-		gm_child.AOD_pos = 0
-		gm_child.podium.clear()
-		gm_child.all_initial.clear()
-		gm_child.player_ace = null
-		gm_child.any_move = null
-		gm_child.degrade_suit = null
-		gm_child.transition_started = false
-		gm_child.chosing_ace = false
-		gm_child.picker_triggered_this_cycle = false
-	ability_picker_ref.reset()
-	restart_btn_ref.get_node("Label").modulate.a = 1.0
-	restart_btn_ref.hide()
-	pick_ace_label_ref.visible = false
-	game_end_label_ref.visible = false
-	hand_ref.reset()
-	get_node("/root/Main/Dealermind").reset()
-	transition_ref.reset()
-	get_node("/root/Main/Inputmind").reset()
-	deck_ref.reset()
+func calc_degrade(suit_num: int) -> void:
+	retreat_ace(suit_num)
+
+
+# ── UI / Events ──────────────────────────────────────────────────────────────
 
 func show_game_end():
 	game_end_label_ref.modulate.a = 0.0
@@ -282,6 +453,7 @@ func show_game_end():
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(game_end_label_ref, "modulate:a", 1.0, 0.5)
 
+
 func begin_ace_selection():
 	chosing_ace = true
 	pick_ace_label_ref.modulate.a = 0.0
@@ -289,6 +461,7 @@ func begin_ace_selection():
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(pick_ace_label_ref, "modulate:a", 1.0, 0.5)
+
 
 func select_ace(ace):
 	player_ace = "AO" + ace.suit_to_letter()
@@ -299,16 +472,32 @@ func select_ace(ace):
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property(pick_ace_label_ref, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(func(): pick_ace_label_ref.visible = false)
-	
-func _on_ability_card_confirmed(card_index: int) -> void:
+
+
+func _on_ability_card_confirmed(player_card_id: String, computer_card_id: String) -> void:
+	# Register enemy card so counter cards can check the type.
+	enemy_pending_card_id = computer_card_id
+	enemy_pending_card_type = AbilityCardDatabase.get_card_type(computer_card_id)
+	enemy_card_disabled = false
+	# Player's card applies first (counters check enemy type here).
+	var needs_visual_update = AbilityCardDatabase.apply_effect(player_card_id, self)
+	if needs_visual_update:
+		await recalculate_ace_y()
+	# TODO: apply computer card effect when AI system is ready
+	# if not enemy_card_disabled:
+	#     AbilityCardDatabase.apply_effect(computer_card_id, self)
 	deck_ref.auto_draw()
 
-#func start_transition():
-	#var transition_scene = preload("res://scenes/transition_(control).tscn")
-	#var transition = transition_scene.instantiate()
-#
-	#get_tree().root.add_child(transition) # 加到最顶层
-#
-	#await transition.finished  # 等动画播放完
-#
-	#get_tree().change_scene_to_file("res://NextScene.tscn")
+
+func _on_podium_finished():
+	restart_btn_ref.modulate.a = 0
+	restart_btn_ref.show()
+	var tween = create_tween()
+	tween.tween_property(restart_btn_ref, "modulate:a", 1.0, 0.5)
+
+
+func _on_button_pressed() -> void:
+	await transition_ref.final_transition_signal().finished
+	full_reset()
+	await transition_ref.enter_transition_signal()
+	deck_ref.draw_card()
