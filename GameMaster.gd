@@ -479,13 +479,15 @@ func _on_ability_card_confirmed(player_card_id: String, computer_card_id: String
 	enemy_pending_card_id = computer_card_id
 	enemy_pending_card_type = AbilityCardDatabase.get_card_type(computer_card_id)
 	enemy_card_disabled = false
-	# Player's card applies first (counters check enemy type here).
+	# Player's card applies first (counter cards check enemy type here).
 	var needs_visual_update = AbilityCardDatabase.apply_effect(player_card_id, self)
 	if needs_visual_update:
 		await recalculate_ace_y()
-	# TODO: apply computer card effect when AI system is ready
-	# if not enemy_card_disabled:
-	#     AbilityCardDatabase.apply_effect(computer_card_id, self)
+	# Computer's card applies second, unless a counter card disabled it.
+	if not enemy_card_disabled and computer_card_id != "":
+		var cp_needs_update = AbilityCardDatabase.apply_effect(computer_card_id, self)
+		if cp_needs_update:
+			await recalculate_ace_y()
 	deck_ref.auto_draw()
 
 

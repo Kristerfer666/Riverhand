@@ -28,6 +28,7 @@ func show_picker() -> void:
 	current_selection = AbilityCardDatabase.get_random_selection(3)
 	_populate_buttons()
 	visible = true
+	$Control.visible = true
 	$Control.modulate.a = 0.0
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -46,12 +47,13 @@ func _populate_buttons() -> void:
 			btn.tooltip_text = ""
 
 
+# Hides only the picker UI — keeps the CanvasLayer alive for the reveal phase.
 func hide_picker() -> void:
 	is_active = false
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property($Control, "modulate:a", 0.0, 0.2)
-	tween.tween_callback(func(): visible = false)
+	tween.tween_callback(func(): $Control.visible = false)
 
 
 func _on_card_option_pressed(index: int) -> void:
@@ -69,7 +71,9 @@ func _on_confirm_pressed() -> void:
 	var computer_card: Dictionary = _pick_computer_card()
 	hide_picker()
 	await get_tree().create_timer(0.25).timeout
+	visible = true
 	await _show_reveal(player_card, computer_card)
+	visible = false
 	card_confirmed.emit(player_card.get("id", ""), computer_card.get("id", ""))
 
 
@@ -100,7 +104,8 @@ func _show_reveal(player_card: Dictionary, computer_card: Dictionary) -> void:
 func _build_reveal_panel(player_card: Dictionary, computer_card: Dictionary) -> Control:
 	var screen := get_viewport().get_visible_rect().size
 	var root := Control.new()
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.position = Vector2.ZERO
+	root.size = screen
 
 	var gap    := 60.0
 	var card_w := 220.0
@@ -108,11 +113,11 @@ func _build_reveal_panel(player_card: Dictionary, computer_card: Dictionary) -> 
 	var cx     := screen.x / 2.0
 	var cy     := screen.y / 2.0
 
-	_add_card_tile(root, player_card,   "You",
+	_add_card_tile(root, player_card, "You",
 		Vector2(cx - gap / 2.0 - card_w, cy - card_h / 2.0),
 		Vector2(card_w, card_h), Color(0.10, 0.20, 0.12, 0.95))
 	_add_card_tile(root, computer_card, "Opponent",
-		Vector2(cx + gap / 2.0,          cy - card_h / 2.0),
+		Vector2(cx + gap / 2.0, cy - card_h / 2.0),
 		Vector2(card_w, card_h), Color(0.22, 0.08, 0.08, 0.95))
 	return root
 
@@ -161,4 +166,5 @@ func reset() -> void:
 	is_active = false
 	current_selection = []
 	visible = false
+	$Control.visible = false
 	$Control.modulate.a = 1.0
