@@ -40,7 +40,7 @@ var cp_transpose_active: bool = false    # same but targeting the CP's ace
 var last_advanced_suit: int = 0          # suit that last advanced this round (for transpose)
 var anticipate_active: bool = false      # redirect other-ace advances to player's ace this round
 var cp_anticipate_active: bool = false   # same but targeting the CP's ace
-var second_chance_active: bool = false   # draw an extra card this round before showing picker
+var second_chance_count: int = 0         # extra draws remaining this round (stacks)
 
 # ── Per-round card tracking (set in _on_ability_card_confirmed) ─────────────
 # Counter cards are resolved first. Each side checks the opponent's pending type.
@@ -105,7 +105,7 @@ func full_reset():
 	last_advanced_suit = 0
 	anticipate_active = false
 	cp_anticipate_active = false
-	second_chance_active = false
+	second_chance_count = 0
 	player_pending_card_id = ""
 	player_pending_card_type = ""
 	player_card_disabled = false
@@ -135,7 +135,7 @@ func full_reset():
 		gm_child.last_advanced_suit = 0
 		gm_child.anticipate_active = false
 		gm_child.cp_anticipate_active = false
-		gm_child.second_chance_active = false
+		gm_child.second_chance_count = 0
 		gm_child.player_pending_card_id = ""
 		gm_child.player_pending_card_type = ""
 		gm_child.player_card_disabled = false
@@ -393,10 +393,10 @@ func degrade_ace():
 			return
 		transition_ref.transition_signal()
 	if not picker_triggered_this_cycle and not transition_started:
-		# Second Chance: trigger extra draw before the picker shows.
-		# Other round-scoped flags stay active for the second draw.
-		if second_chance_active:
-			second_chance_active = false
+		# Second Chance: each stack grants one extra draw before the picker.
+		# Decrement so the next degrade_ace call checks the remaining count.
+		if second_chance_count > 0:
+			second_chance_count -= 1
 			deck_ref.auto_draw()
 			return
 		# Round truly ends here — apply end-of-round effects, clear all flags.

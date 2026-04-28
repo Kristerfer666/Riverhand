@@ -96,7 +96,7 @@ static func apply_effect(card_id: String, game_master: Node, is_player: bool = t
 			else:
 				game_master.cp_anticipate_active = true
 		"second_chance":
-			game_master.second_chance_active = true
+			game_master.second_chance_count += 1
 		# ── Counter cards — always resolve before the enemy's card effect ────
 		# apply_effect for counter cards is called first in the turn-resolution
 		# order; if the enemy's pending card type matches, it is disabled.
