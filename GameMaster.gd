@@ -42,12 +42,14 @@ var anticipate_active: bool = false      # redirect other-ace advances to player
 var cp_anticipate_active: bool = false   # same but targeting the CP's ace
 var second_chance_active: bool = false   # draw an extra card this round before showing picker
 
-# ── Enemy card tracking (set from reveal before counter resolution) ──────────
-# Counter cards are resolved first; if one matches, enemy_card_disabled is set
-# and the enemy card's apply_effect call is skipped when the AI system is built.
+# ── Per-round card tracking (set in _on_ability_card_confirmed) ─────────────
+# Counter cards are resolved first. Each side checks the opponent's pending type.
+var player_pending_card_id: String = ""
+var player_pending_card_type: String = ""
+var player_card_disabled: bool = false    # true = CP's counter cancelled the player's card
 var enemy_pending_card_id: String = ""
-var enemy_pending_card_type: String = ""  # "boost" | "conspiracy" | "force" | "counter" | ""
-var enemy_card_disabled: bool = false     # true = a counter card cancelled the enemy's card
+var enemy_pending_card_type: String = ""
+var enemy_card_disabled: bool = false     # true = player's counter cancelled the CP's card
 
 
 # ── Lifecycle ────────────────────────────────────────────────────────────────
@@ -104,6 +106,9 @@ func full_reset():
 	anticipate_active = false
 	cp_anticipate_active = false
 	second_chance_active = false
+	player_pending_card_id = ""
+	player_pending_card_type = ""
+	player_card_disabled = false
 	enemy_pending_card_id = ""
 	enemy_pending_card_type = ""
 	enemy_card_disabled = false
@@ -131,6 +136,9 @@ func full_reset():
 		gm_child.anticipate_active = false
 		gm_child.cp_anticipate_active = false
 		gm_child.second_chance_active = false
+		gm_child.player_pending_card_id = ""
+		gm_child.player_pending_card_type = ""
+		gm_child.player_card_disabled = false
 		gm_child.enemy_pending_card_id = ""
 		gm_child.enemy_pending_card_type = ""
 		gm_child.enemy_card_disabled = false
@@ -532,23 +540,38 @@ func _select_computer_ace() -> void:
 
 
 func _on_ability_card_confirmed(player_card_id: String, computer_card_id: String) -> void:
-	# Register enemy card so counter cards can check the type.
-	enemy_pending_card_id = computer_card_id
-	enemy_pending_card_type = AbilityCardDatabase.get_card_type(computer_card_id)
-	enemy_card_disabled = false
-	# Player's card applies first (counter cards check enemy type here).
-	var needs_visual_update = AbilityCardDatabase.apply_effect(player_card_id, self, true)
-	if needs_visual_update:
-		await recalculate_ace_y()
-	# If a counter card successfully fired, retreat the CP's ace one block.
+	# Register both pending types so each side's counter cards can check the other.
+	player_pending_card_id   = player_card_id
+	player_pending_card_type = AbilityCardDatabase.get_card_type(player_card_id)
+	enemy_pending_card_id    = computer_card_id
+	enemy_pending_card_type  = AbilityCardDatabase.get_card_type(computer_card_id)
+	player_card_disabled = false
+	enemy_card_disabled  = false
+
+	# ── Phase 1: resolve counter cards from both sides first ─────────────────
+	if player_pending_card_type == "counter":
+		AbilityCardDatabase.apply_effect(player_card_id, self, true)
+	if enemy_pending_card_type == "counter":
+		AbilityCardDatabase.apply_effect(computer_card_id, self, false)
+
+	# ── Phase 2: penalise countered sides (retreat one block each) ───────────
 	if enemy_card_disabled and computer_ace != "":
 		_retreat_ace_pos(_ace_name_to_suit(computer_ace))
 		await recalculate_ace_y()
-	# Computer's card applies second, unless a counter card disabled it.
-	if not enemy_card_disabled and computer_card_id != "":
+	if player_card_disabled and player_ace != null:
+		_retreat_ace_pos(_ace_name_to_suit(player_ace))
+		await recalculate_ace_y()
+
+	# ── Phase 3: apply surviving non-counter effects ─────────────────────────
+	if player_pending_card_type != "counter" and not player_card_disabled:
+		var needs_update = AbilityCardDatabase.apply_effect(player_card_id, self, true)
+		if needs_update:
+			await recalculate_ace_y()
+	if enemy_pending_card_type != "counter" and not enemy_card_disabled and computer_card_id != "":
 		var cp_needs_update = AbilityCardDatabase.apply_effect(computer_card_id, self, false)
 		if cp_needs_update:
 			await recalculate_ace_y()
+
 	deck_ref.auto_draw()
 
 

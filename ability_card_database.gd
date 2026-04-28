@@ -101,14 +101,20 @@ static func apply_effect(card_id: String, game_master: Node, is_player: bool = t
 		# apply_effect for counter cards is called first in the turn-resolution
 		# order; if the enemy's pending card type matches, it is disabled.
 		"outsmarted":
-			if game_master.enemy_pending_card_type == "boost":
-				game_master.enemy_card_disabled = true
+			var target_type = game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
+			if target_type == "boost":
+				if is_player: game_master.enemy_card_disabled = true
+				else: game_master.player_card_disabled = true
 		"called_out":
-			if game_master.enemy_pending_card_type == "conspiracy":
-				game_master.enemy_card_disabled = true
+			var target_type = game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
+			if target_type == "conspiracy":
+				if is_player: game_master.enemy_card_disabled = true
+				else: game_master.player_card_disabled = true
 		"hold_the_line":
-			if game_master.enemy_pending_card_type == "force":
-				game_master.enemy_card_disabled = true
+			var target_type = game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
+			if target_type == "force":
+				if is_player: game_master.enemy_card_disabled = true
+				else: game_master.player_card_disabled = true
 		"timeout":
 			game_master.timeout_active = true
 		"overextension":
