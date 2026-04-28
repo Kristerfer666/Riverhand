@@ -518,6 +518,7 @@ func _end_round() -> void:
 		cp_transpose_active = false
 		anticipate_active = false
 		cp_anticipate_active = false
+		second_chance_count = 0
 		await get_tree().create_timer(0.3).timeout
 		if game_generation != gen:
 			return

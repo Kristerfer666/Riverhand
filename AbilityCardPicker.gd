@@ -26,6 +26,12 @@ func show_picker() -> void:
 	is_active = true
 	selected_index = -1
 	current_selection = AbilityCardDatabase.get_random_selection(3)
+	# [TEST] force all three options to second_chance
+	# var _sc = AbilityCardDatabase.CARDS.filter(func(c): return c.get("id") == "second_chance")[0]
+	# current_selection = [_sc, _sc, _sc]
+	# [TEST] force all three options to anticipate
+	# var _ant = AbilityCardDatabase.CARDS.filter(func(c): return c.get("id") == "anticipate")[0]
+	# current_selection = [_ant, _ant, _ant]
 	_populate_buttons()
 	visible = true
 	$Control.visible = true
@@ -40,7 +46,7 @@ func _populate_buttons() -> void:
 		var btn = get_node_or_null("Control/CardsContainer/CardOption%d" % i)
 		if btn and i < current_selection.size():
 			var card = current_selection[i]
-			btn.text = card.get("name", "???")
+			btn.text = card.get("name", "???") + "\n[" + card.get("type", "").to_upper() + "]"
 			btn.tooltip_text = card.get("description", "")
 		elif btn:
 			btn.text = "—"
@@ -83,6 +89,12 @@ func _pick_computer_card() -> Dictionary:
 		return {}
 	pool.shuffle()
 	return pool[0]
+	# [TEST] force CP to always pick second_chance
+	# var _matches = AbilityCardDatabase.CARDS.filter(func(c): return c.get("id") == "second_chance")
+	# return _matches[0] if not _matches.is_empty() else {}
+	# [TEST] force CP to always pick anticipate
+	# var _matches = AbilityCardDatabase.CARDS.filter(func(c): return c.get("id") == "anticipate")
+	# return _matches[0] if not _matches.is_empty() else {}
 
 
 func _show_reveal(player_card: Dictionary, computer_card: Dictionary) -> void:
@@ -103,15 +115,16 @@ func _show_reveal(player_card: Dictionary, computer_card: Dictionary) -> void:
 
 func _build_reveal_panel(player_card: Dictionary, computer_card: Dictionary) -> Control:
 	var screen := get_viewport().get_visible_rect().size
+	var cx := screen.x / 2.0
+	var cy := screen.y / 2.0
+
 	var root := Control.new()
 	root.position = Vector2.ZERO
 	root.size = screen
 
-	var gap    := 60.0
+	var gap    := 40.0
 	var card_w := 220.0
 	var card_h := 280.0
-	var cx     := screen.x / 2.0
-	var cy     := screen.y / 2.0
 
 	_add_card_tile(root, player_card, "You",
 		Vector2(cx - gap / 2.0 - card_w, cy - card_h / 2.0),
