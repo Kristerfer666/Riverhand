@@ -280,6 +280,16 @@ func _do_instant_transpose(suit_a: int, suit_b: int) -> void:
 	var num = node_a.num
 	node_a.num = node_b.num
 	node_b.num = num
+	# Re-apply visual ownership markers after the swap.
+	# Modulates don't follow the suit/texture swap automatically.
+	for swapped in [node_a, node_b]:
+		var ace_name = _suit_to_ace_name(swapped.suit)
+		if ace_name == player_ace:
+			swapped.modulate = Color.WHITE
+		elif ace_name == computer_ace:
+			swapped.modulate = Color(0.7, 0.85, 1.0)
+		else:
+			swapped.modulate = Color.WHITE
 
 # Swaps the positions of two aces. Allowed even during timeout.
 func swap_aces(suit_a: int, suit_b: int) -> void:
