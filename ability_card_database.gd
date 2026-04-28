@@ -80,15 +80,21 @@ static func get_card_type(card_id: String) -> String:
 
 # Returns true if the caller must await recalculate_ace_y() before auto_draw
 # (used by cards whose effect needs a visual update before the next draw).
-static func apply_effect(card_id: String, game_master: Node) -> bool:
+static func apply_effect(card_id: String, game_master: Node, is_player: bool = true) -> bool:
 	match card_id:
 		"transpose":
-			game_master.transpose_active = true
+			if is_player:
+				game_master.transpose_active = true
+			else:
+				game_master.cp_transpose_active = true
 		"bite_dust":
 			game_master.retreat_all_aces()
 			return true
 		"anticipate":
-			game_master.anticipate_active = true
+			if is_player:
+				game_master.anticipate_active = true
+			else:
+				game_master.cp_anticipate_active = true
 		"second_chance":
 			game_master.second_chance_active = true
 		# ── Counter cards — always resolve before the enemy's card effect ────

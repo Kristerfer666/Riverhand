@@ -13,6 +13,7 @@ var podium = []
 var all_initial: Array = []
 
 var player_ace
+var computer_ace: String = ""
 
 var deck_ref
 var transition_ref
@@ -32,12 +33,14 @@ var ability_picker_ref
 var picker_triggered_this_cycle = false
 
 # ── Active effect flags (cleared at end of each round) ──────────────────────
-var timeout_active: bool = false       # no ace movement of any kind this round
-var overextension_active: bool = false # advances become retreats this round
-var transpose_active: bool = false     # swap player ace with last-advanced ace at round end
-var last_advanced_suit: int = 0        # suit that advanced this round (for transpose)
-var anticipate_active: bool = false    # redirect other-ace advances to player's ace this round
-var second_chance_active: bool = false # draw an extra card this round before showing picker
+var timeout_active: bool = false         # no ace movement of any kind this round
+var overextension_active: bool = false   # advances become retreats this round
+var transpose_active: bool = false       # swap player ace with last-advanced ace at round end
+var cp_transpose_active: bool = false    # same but targeting the CP's ace
+var last_advanced_suit: int = 0          # suit that last advanced this round (for transpose)
+var anticipate_active: bool = false      # redirect other-ace advances to player's ace this round
+var cp_anticipate_active: bool = false   # same but targeting the CP's ace
+var second_chance_active: bool = false   # draw an extra card this round before showing picker
 
 # ── Enemy card tracking (set from reveal before counter resolution) ──────────
 # Counter cards are resolved first; if one matches, enemy_card_disabled is set
@@ -87,6 +90,7 @@ func full_reset():
 	podium.clear()
 	all_initial.clear()
 	player_ace = null
+	computer_ace = ""
 	any_move = null
 	degrade_suit = null
 	transition_started = false
@@ -95,8 +99,10 @@ func full_reset():
 	timeout_active = false
 	overextension_active = false
 	transpose_active = false
+	cp_transpose_active = false
 	last_advanced_suit = 0
 	anticipate_active = false
+	cp_anticipate_active = false
 	second_chance_active = false
 	enemy_pending_card_id = ""
 	enemy_pending_card_type = ""
@@ -111,6 +117,7 @@ func full_reset():
 		gm_child.podium.clear()
 		gm_child.all_initial.clear()
 		gm_child.player_ace = null
+		gm_child.computer_ace = ""
 		gm_child.any_move = null
 		gm_child.degrade_suit = null
 		gm_child.transition_started = false
@@ -119,8 +126,10 @@ func full_reset():
 		gm_child.timeout_active = false
 		gm_child.overextension_active = false
 		gm_child.transpose_active = false
+		gm_child.cp_transpose_active = false
 		gm_child.last_advanced_suit = 0
 		gm_child.anticipate_active = false
+		gm_child.cp_anticipate_active = false
 		gm_child.second_chance_active = false
 		gm_child.enemy_pending_card_id = ""
 		gm_child.enemy_pending_card_type = ""
@@ -197,24 +206,31 @@ func _retreat_ace_pos(suit: int) -> void:
 # primitives directly. This ensures active effects (timeout, overextension,
 # future cards) are always respected.
 
-# Returns "advanced", "retreated", "redirected", "stayed", or "maxed".
-# "maxed"      → ace was already at 6, caller should trigger auto-draw.
-# "retreated"  → overextension converted the advance into a retreat.
-# "redirected" → anticipate redirected the advance to the player's ace.
-# "stayed"     → anticipate blocked the advance entirely (player's own card).
+# Returns "advanced", "retreated", "redirected", "cp_retreated", "cp_redirected",
+# "stayed", or "maxed".
 # Timeout is handled upstream in move_ace before this is ever called.
 func advance_ace(suit: int) -> String:
 	if overextension_active:
 		_retreat_ace_pos(suit)
 		return "retreated"
+	var player_suit := _ace_name_to_suit(player_ace) if player_ace != null else 0
+	var cp_suit    := _ace_name_to_suit(computer_ace) if computer_ace != "" else 0
+	# Own-ace retreat rules take priority over redirects.
+	if anticipate_active and suit == player_suit:
+		_retreat_ace_pos(player_suit)
+		return "retreated"
+	if cp_anticipate_active and suit == cp_suit:
+		_retreat_ace_pos(cp_suit)
+		return "cp_retreated"
+	# Redirect: player's anticipate fires first if both are active.
 	if anticipate_active:
-		var player_suit = _ace_name_to_suit(player_ace)
-		if suit == player_suit:
-			_retreat_ace_pos(player_suit)
-			return "retreated"
 		if not _advance_ace_pos(player_suit):
-			return "stayed"  # player's ace already maxed, nothing moves
+			return "stayed"
 		return "redirected"
+	if cp_anticipate_active:
+		if not _advance_ace_pos(cp_suit):
+			return "stayed"
+		return "cp_redirected"
 	if not _advance_ace_pos(suit):
 		return "maxed"
 	return "advanced"
@@ -348,14 +364,19 @@ func degrade_ace():
 			return
 		# Round truly ends here — apply end-of-round effects, clear all flags.
 		if transpose_active and last_advanced_suit != 0:
-			transpose_active = false
 			var player_suit = _ace_name_to_suit(player_ace)
 			if player_suit != last_advanced_suit:
 				_do_instant_transpose(player_suit, last_advanced_suit)
+		if cp_transpose_active and last_advanced_suit != 0:
+			var cp_suit = _ace_name_to_suit(computer_ace)
+			if cp_suit != last_advanced_suit:
+				_do_instant_transpose(cp_suit, last_advanced_suit)
 		timeout_active = false
 		overextension_active = false
 		transpose_active = false
+		cp_transpose_active = false
 		anticipate_active = false
+		cp_anticipate_active = false
 		picker_triggered_this_cycle = true
 		ability_picker_ref.show_picker()
 
@@ -401,6 +422,13 @@ func move_ace(card):
 			last_advanced_suit = _ace_name_to_suit(player_ace)
 			await recalculate_ace_y()
 			await degrade_ace()
+		"cp_retreated":
+			await recalculate_ace_y()
+			await degrade_ace()
+		"cp_redirected":
+			last_advanced_suit = _ace_name_to_suit(computer_ace)
+			await recalculate_ace_y()
+			await degrade_ace()
 		"stayed":
 			await get_tree().create_timer(0.3).timeout
 			await degrade_ace()
@@ -425,14 +453,19 @@ func _end_round() -> void:
 		return
 	if not picker_triggered_this_cycle and not transition_started:
 		if transpose_active and last_advanced_suit != 0:
-			transpose_active = false
 			var player_suit = _ace_name_to_suit(player_ace)
 			if player_suit != last_advanced_suit:
 				_do_instant_transpose(player_suit, last_advanced_suit)
+		if cp_transpose_active and last_advanced_suit != 0:
+			var cp_suit = _ace_name_to_suit(computer_ace)
+			if cp_suit != last_advanced_suit:
+				_do_instant_transpose(cp_suit, last_advanced_suit)
 		timeout_active = false
 		overextension_active = false
 		transpose_active = false
+		cp_transpose_active = false
 		anticipate_active = false
+		cp_anticipate_active = false
 		await get_tree().create_timer(0.3).timeout
 		if game_generation != gen:
 			return
@@ -467,11 +500,25 @@ func select_ace(ace):
 	player_ace = "AO" + ace.suit_to_letter()
 	ace.anim_gold()
 	chosing_ace = false
+	_select_computer_ace()
 	ability_picker_ref.show_picker()
 	var tween = create_tween()
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property(pick_ace_label_ref, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(func(): pick_ace_label_ref.visible = false)
+
+
+func _select_computer_ace() -> void:
+	var all_aces := ["AOS", "AOH", "AOC", "AOD"]
+	all_aces.erase(player_ace)
+	all_aces.shuffle()
+	computer_ace = all_aces[0]
+	for card in all_initial:
+		if not is_instance_valid(card) or not card.ace:
+			continue
+		if _suit_to_ace_name(card.suit) == computer_ace:
+			card.modulate = Color(0.7, 0.85, 1.0)
+			break
 
 
 func _on_ability_card_confirmed(player_card_id: String, computer_card_id: String) -> void:
@@ -480,12 +527,12 @@ func _on_ability_card_confirmed(player_card_id: String, computer_card_id: String
 	enemy_pending_card_type = AbilityCardDatabase.get_card_type(computer_card_id)
 	enemy_card_disabled = false
 	# Player's card applies first (counter cards check enemy type here).
-	var needs_visual_update = AbilityCardDatabase.apply_effect(player_card_id, self)
+	var needs_visual_update = AbilityCardDatabase.apply_effect(player_card_id, self, true)
 	if needs_visual_update:
 		await recalculate_ace_y()
 	# Computer's card applies second, unless a counter card disabled it.
 	if not enemy_card_disabled and computer_card_id != "":
-		var cp_needs_update = AbilityCardDatabase.apply_effect(computer_card_id, self)
+		var cp_needs_update = AbilityCardDatabase.apply_effect(computer_card_id, self, false)
 		if cp_needs_update:
 			await recalculate_ace_y()
 	deck_ref.auto_draw()
