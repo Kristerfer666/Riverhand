@@ -214,8 +214,9 @@ func _retreat_ace_pos(suit: int) -> void:
 # primitives directly. This ensures active effects (timeout, overextension,
 # future cards) are always respected.
 
-# Returns "advanced", "retreated", "redirected", "cp_retreated", "cp_redirected",
-# "stayed", or "maxed".
+# Returns one of: "advanced", "retreated", "redirected", "cp_retreated",
+# "cp_redirected", "stayed", "maxed", "dual_player_retreat",
+# "dual_cp_retreat", "dual_both_advance".
 # Timeout is handled upstream in move_ace before this is ever called.
 func advance_ace(suit: int) -> String:
 	if overextension_active:
@@ -223,14 +224,32 @@ func advance_ace(suit: int) -> String:
 		return "retreated"
 	var player_suit := _ace_name_to_suit(player_ace) if player_ace != null else 0
 	var cp_suit    := _ace_name_to_suit(computer_ace) if computer_ace != "" else 0
-	# Own-ace retreat rules take priority over redirects.
+	# Both anticipates active — handle all three sub-cases explicitly so both
+	# sides always get their correct movement (single-side early-returns would
+	# prevent the second side from acting).
+	if anticipate_active and cp_anticipate_active:
+		if suit == player_suit:
+			# Player's own card: player retreats, CP advances.
+			_retreat_ace_pos(player_suit)
+			_advance_ace_pos(cp_suit)
+			return "dual_player_retreat"
+		elif suit == cp_suit:
+			# CP's own card: CP retreats, player advances.
+			_retreat_ace_pos(cp_suit)
+			_advance_ace_pos(player_suit)
+			return "dual_cp_retreat"
+		else:
+			# Neither: both advance.
+			_advance_ace_pos(player_suit)
+			_advance_ace_pos(cp_suit)
+			return "dual_both_advance"
+	# Single-side anticipate — own-ace retreat takes priority over redirect.
 	if anticipate_active and suit == player_suit:
 		_retreat_ace_pos(player_suit)
 		return "retreated"
 	if cp_anticipate_active and suit == cp_suit:
 		_retreat_ace_pos(cp_suit)
 		return "cp_retreated"
-	# Redirect: player's anticipate fires first if both are active.
 	if anticipate_active:
 		if not _advance_ace_pos(player_suit):
 			return "stayed"
@@ -445,6 +464,21 @@ func move_ace(card):
 			await degrade_ace()
 		"cp_redirected":
 			last_advanced_suit = _ace_name_to_suit(computer_ace)
+			await recalculate_ace_y()
+			await degrade_ace()
+		"dual_player_retreat":
+			# Player's own card drawn: player retreated, CP advanced.
+			last_advanced_suit = _ace_name_to_suit(computer_ace)
+			await recalculate_ace_y()
+			await degrade_ace()
+		"dual_cp_retreat":
+			# CP's own card drawn: CP retreated, player advanced.
+			last_advanced_suit = _ace_name_to_suit(player_ace)
+			await recalculate_ace_y()
+			await degrade_ace()
+		"dual_both_advance":
+			# Third-party card drawn: both advanced.
+			last_advanced_suit = _ace_name_to_suit(player_ace)
 			await recalculate_ace_y()
 			await degrade_ace()
 		"stayed":
