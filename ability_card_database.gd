@@ -48,19 +48,19 @@ const CARDS: Array[Dictionary] = [
 		"id": "outsmarted",
 		"type": "counter",
 		"name": "Outsmarted",
-		"description": "If the enemy played a boost card this turn, it is disabled.",
+		"description": "If the enemy played a boost card this turn, it is disabled and the enemy's ace retreats one block.",
 	},
 	{
 		"id": "called_out",
 		"type": "counter",
 		"name": "Called Out",
-		"description": "If the enemy played a conspiracy card this turn, it is disabled.",
+		"description": "If the enemy played a conspiracy card this turn, it is disabled and the enemy's ace retreats one block.",
 	},
 	{
 		"id": "hold_the_line",
 		"type": "counter",
 		"name": "Hold the Line",
-		"description": "If the enemy played a force card this turn, it is disabled.",
+		"description": "If the enemy played a force card this turn, it is disabled and the enemy's ace retreats one block.",
 	},
 ]
 

@@ -540,6 +540,10 @@ func _on_ability_card_confirmed(player_card_id: String, computer_card_id: String
 	var needs_visual_update = AbilityCardDatabase.apply_effect(player_card_id, self, true)
 	if needs_visual_update:
 		await recalculate_ace_y()
+	# If a counter card successfully fired, retreat the CP's ace one block.
+	if enemy_card_disabled and computer_ace != "":
+		_retreat_ace_pos(_ace_name_to_suit(computer_ace))
+		await recalculate_ace_y()
 	# Computer's card applies second, unless a counter card disabled it.
 	if not enemy_card_disabled and computer_card_id != "":
 		var cp_needs_update = AbilityCardDatabase.apply_effect(computer_card_id, self, false)
