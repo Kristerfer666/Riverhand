@@ -49,6 +49,7 @@ func _populate_buttons() -> void:
 		# Immediately free all dynamic children from previous rounds.
 		for child in btn.get_children():
 			child.free()
+		btn.modulate = Color(1, 1, 1)
 		btn.clip_contents = true
 		if i < current_selection.size():
 			var card = current_selection[i]
@@ -96,6 +97,10 @@ func _on_card_option_pressed(index: int) -> void:
 	if not is_active:
 		return
 	selected_index = index
+	for i in range(3):
+		var btn = get_node_or_null("Control/CardsContainer/CardOption%d" % i)
+		if btn:
+			btn.modulate = Color(1.4, 1.4, 1.0) if i == index else Color(1, 1, 1)
 
 
 func _on_confirm_pressed() -> void:
