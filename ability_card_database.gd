@@ -12,55 +12,55 @@ const CARDS: Array[Dictionary] = [
 		"id": "transpose",
 		"type": "force",
 		"name": "Transpose",
-		"description": "At the end of this turn, swap your ace's position with the last ace that advanced. Card images and suits swap instantly.",
+		"description": "At the end of this turn, swap your ace's position with the last ace that advanced.",
 	},
 	{
 		"id": "bite_dust",
 		"type": "force",
 		"name": "Bite Dust",
-		"description": "All aces immediately retreat to the starting line before this turn's draw.",
+		"description": "All aces retreat to the starting line.",
 	},
 	{
 		"id": "timeout",
 		"type": "conspiracy",
 		"name": "Timeout",
-		"description": "Until the end of this round, no ace can move.",
+		"description": "Until the end of this turn, no ace can move.",
 	},
 	{
 		"id": "overextension",
 		"type": "conspiracy",
 		"name": "Overextension",
-		"description": "Any ace that advances this turn retreats instead.",
+		"description": "Any ace that advances this turn retreat 1 instead.",
 	},
 	{
 		"id": "anticipate",
 		"type": "boost",
 		"name": "Anticipate",
-		"description": "This round: when another ace advances, it stays and your ace advances instead. If your own ace is drawn, it retreats one block.",
+		"description": "When an ace advances, it stays and your ace advances instead. If it was yours, it retreats 1 instead.",
 	},
 	{
 		"id": "second_chance",
 		"type": "boost",
 		"name": "Second Chance",
-		"description": "This round: after the card is drawn, draw one extra card automatically.",
+		"description": "This turn, after an card is drawn, draw one extra card.",
 	},
 	{
 		"id": "outsmarted",
 		"type": "counter",
 		"name": "Outsmarted",
-		"description": "If the enemy played a boost card this turn, it is disabled and the enemy's ace retreats one block.",
+		"description": "If the enemy played a boost card this turn, it is disabled and the enemy's ace retreats 1.",
 	},
 	{
 		"id": "called_out",
 		"type": "counter",
 		"name": "Called Out",
-		"description": "If the enemy played a conspiracy card this turn, it is disabled and the enemy's ace retreats one block.",
+		"description": "If the enemy played a conspiracy card this turn, it is disabled and the enemy's ace retreats 1.",
 	},
 	{
 		"id": "hold_the_line",
 		"type": "counter",
 		"name": "Hold the Line",
-		"description": "If the enemy played a force card this turn, it is disabled and the enemy's ace retreats one block.",
+		"description": "If the enemy played a force card this turn, it is disabled and the enemy's ace retreats 1.",
 	},
 ]
 
@@ -100,19 +100,10 @@ static func apply_effect(card_id: String, game_master: Node, is_player: bool = t
 		# ── Counter cards — always resolve before the enemy's card effect ────
 		# apply_effect for counter cards is called first in the turn-resolution
 		# order; if the enemy's pending card type matches, it is disabled.
-		"outsmarted":
-			var target_type = game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
-			if target_type == "boost":
-				if is_player: game_master.enemy_card_disabled = true
-				else: game_master.player_card_disabled = true
-		"called_out":
-			var target_type = game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
-			if target_type == "conspiracy":
-				if is_player: game_master.enemy_card_disabled = true
-				else: game_master.player_card_disabled = true
-		"hold_the_line":
-			var target_type = game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
-			if target_type == "force":
+		"outsmarted", "called_out", "hold_the_line":
+			const _COUNTER_BLOCKS := {"outsmarted": "boost", "called_out": "conspiracy", "hold_the_line": "force"}
+			var opponent_type := game_master.enemy_pending_card_type if is_player else game_master.player_pending_card_type
+			if opponent_type == _COUNTER_BLOCKS[card_id]:
 				if is_player: game_master.enemy_card_disabled = true
 				else: game_master.player_card_disabled = true
 		"timeout":

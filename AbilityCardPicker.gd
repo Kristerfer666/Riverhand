@@ -44,13 +44,43 @@ func show_picker() -> void:
 func _populate_buttons() -> void:
 	for i in range(3):
 		var btn = get_node_or_null("Control/CardsContainer/CardOption%d" % i)
-		if btn and i < current_selection.size():
+		if not btn:
+			continue
+		# Immediately free all dynamic children from previous rounds.
+		for child in btn.get_children():
+			child.free()
+		btn.clip_contents = true
+		if i < current_selection.size():
 			var card = current_selection[i]
-			btn.text = card.get("name", "???") + "\n[" + card.get("type", "").to_upper() + "]"
+			btn.text = ""
 			btn.tooltip_text = card.get("description", "")
-		elif btn:
+			# Name + type: upper-middle band (15 % – 45 % of button height).
+			var lbl_header := Label.new()
+			lbl_header.text = card.get("name", "???") + "\n[" + card.get("type", "").to_upper() + "]"
+			lbl_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			lbl_header.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+			lbl_header.anchor_left   = 0.0
+			lbl_header.anchor_top    = 0.12
+			lbl_header.anchor_right  = 1.0
+			lbl_header.anchor_bottom = 0.45
+			lbl_header.offset_left  = 6
+			lbl_header.offset_right = -6
+			btn.add_child(lbl_header)
+			# Description: lower band (48 % – 94 % of button height), word-wrapped.
+			var lbl_desc := Label.new()
+			lbl_desc.text = card.get("description", "")
+			lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			lbl_desc.vertical_alignment   = VERTICAL_ALIGNMENT_TOP
+			lbl_desc.anchor_left   = 0.0
+			lbl_desc.anchor_top    = 0.48
+			lbl_desc.anchor_right  = 1.0
+			lbl_desc.anchor_bottom = 0.94
+			lbl_desc.offset_left  = 6
+			lbl_desc.offset_right = -6
+			btn.add_child(lbl_desc)
+		else:
 			btn.text = "—"
-			btn.tooltip_text = ""
 
 
 # Hides only the picker UI — keeps the CanvasLayer alive for the reveal phase.
@@ -139,10 +169,7 @@ func _add_card_tile(parent: Control, card: Dictionary, header: String,
 		pos: Vector2, size: Vector2, bg: Color) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
-	style.corner_radius_top_left     = 14
-	style.corner_radius_top_right    = 14
-	style.corner_radius_bottom_left  = 14
-	style.corner_radius_bottom_right = 14
+	style.set_corner_radius_all(14)
 
 	var panel := Panel.new()
 	panel.add_theme_stylebox_override("panel", style)
@@ -160,16 +187,24 @@ func _add_card_tile(parent: Control, card: Dictionary, header: String,
 	lbl_name.text = card.get("name", "???")
 	lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl_name.position = Vector2(10, size.y / 2.0 - 30)
-	lbl_name.size = Vector2(size.x - 20, 60)
+	lbl_name.position = Vector2(10, 48)
+	lbl_name.size = Vector2(size.x - 20, 36)
 	panel.add_child(lbl_name)
 
 	var lbl_type := Label.new()
 	lbl_type.text = "[" + card.get("type", "").to_upper() + "]"
 	lbl_type.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_type.position = Vector2(0, size.y - 42)
-	lbl_type.size = Vector2(size.x, 28)
+	lbl_type.position = Vector2(0, 88)
+	lbl_type.size = Vector2(size.x, 24)
 	panel.add_child(lbl_type)
+
+	var lbl_desc := Label.new()
+	lbl_desc.text = card.get("description", "")
+	lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_desc.position = Vector2(12, 122)
+	lbl_desc.size = Vector2(size.x - 24, size.y - 138)
+	panel.add_child(lbl_desc)
 
 	parent.add_child(panel)
 

@@ -75,10 +75,6 @@ func _ready() -> void:
 	deck_ref.draw_card()
 
 
-func _process(_delta: float) -> void:
-	pass
-
-
 func register_initial(card):
 	all_initial.append(card)
 
@@ -112,36 +108,6 @@ func full_reset():
 	enemy_pending_card_id = ""
 	enemy_pending_card_type = ""
 	enemy_card_disabled = false
-	var gm_child = get_node_or_null("GameMaster")
-	if gm_child:
-		gm_child.game_generation = game_generation
-		gm_child.AOS_pos = 0
-		gm_child.AOH_pos = 0
-		gm_child.AOC_pos = 0
-		gm_child.AOD_pos = 0
-		gm_child.podium.clear()
-		gm_child.all_initial.clear()
-		gm_child.player_ace = null
-		gm_child.computer_ace = ""
-		gm_child.any_move = null
-		gm_child.degrade_suit = null
-		gm_child.transition_started = false
-		gm_child.chosing_ace = false
-		gm_child.picker_triggered_this_cycle = false
-		gm_child.timeout_active = false
-		gm_child.overextension_active = false
-		gm_child.transpose_active = false
-		gm_child.cp_transpose_active = false
-		gm_child.last_advanced_suit = 0
-		gm_child.anticipate_active = false
-		gm_child.cp_anticipate_active = false
-		gm_child.second_chance_count = 0
-		gm_child.player_pending_card_id = ""
-		gm_child.player_pending_card_type = ""
-		gm_child.player_card_disabled = false
-		gm_child.enemy_pending_card_id = ""
-		gm_child.enemy_pending_card_type = ""
-		gm_child.enemy_card_disabled = false
 	ability_picker_ref.reset()
 	restart_btn_ref.get_node("Label").modulate.a = 1.0
 	restart_btn_ref.hide()
@@ -307,16 +273,9 @@ func _do_instant_transpose(suit_a: int, suit_b: int) -> void:
 	var num = node_a.num
 	node_a.num = node_b.num
 	node_b.num = num
-	# Re-apply visual ownership markers after the swap.
-	# Modulates don't follow the suit/texture swap automatically.
+	# Re-apply visual ownership markers — modulates don't follow the swap.
 	for swapped in [node_a, node_b]:
-		var ace_name = _suit_to_ace_name(swapped.suit)
-		if ace_name == player_ace:
-			swapped.modulate = Color.WHITE
-		elif ace_name == computer_ace:
-			swapped.modulate = Color(0.7, 0.85, 1.0)
-		else:
-			swapped.modulate = Color.WHITE
+		swapped.modulate = Color(0.7, 0.85, 1.0) if _suit_to_ace_name(swapped.suit) == computer_ace else Color.WHITE
 
 # Swaps the positions of two aces. Allowed even during timeout.
 func swap_aces(suit_a: int, suit_b: int) -> void:
@@ -374,7 +333,7 @@ func degrade_ace():
 						await get_tree().create_timer(0.7).timeout
 						if game_generation != gen:
 							return
-						calc_degrade(degrade_suit)
+						retreat_ace(degrade_suit)
 						await recalculate_ace_y()
 						if game_generation != gen:
 							return
@@ -399,21 +358,7 @@ func degrade_ace():
 			second_chance_count -= 1
 			deck_ref.auto_draw()
 			return
-		# Round truly ends here — apply end-of-round effects, clear all flags.
-		if transpose_active and last_advanced_suit != 0:
-			var player_suit = _ace_name_to_suit(player_ace)
-			if player_suit != last_advanced_suit:
-				_do_instant_transpose(player_suit, last_advanced_suit)
-		if cp_transpose_active and last_advanced_suit != 0:
-			var cp_suit = _ace_name_to_suit(computer_ace)
-			if cp_suit != last_advanced_suit:
-				_do_instant_transpose(cp_suit, last_advanced_suit)
-		timeout_active = false
-		overextension_active = false
-		transpose_active = false
-		cp_transpose_active = false
-		anticipate_active = false
-		cp_anticipate_active = false
+		_apply_end_of_round_effects()
 		picker_triggered_this_cycle = true
 		ability_picker_ref.show_picker()
 
@@ -452,33 +397,15 @@ func move_ace(card):
 			last_advanced_suit = card.suit
 			await recalculate_ace_y()
 			await degrade_ace()
-		"retreated":
+		"retreated", "cp_retreated":
 			await recalculate_ace_y()
 			await degrade_ace()
-		"redirected":
+		"redirected", "dual_cp_retreat", "dual_both_advance":
 			last_advanced_suit = _ace_name_to_suit(player_ace)
 			await recalculate_ace_y()
 			await degrade_ace()
-		"cp_retreated":
-			await recalculate_ace_y()
-			await degrade_ace()
-		"cp_redirected":
+		"cp_redirected", "dual_player_retreat":
 			last_advanced_suit = _ace_name_to_suit(computer_ace)
-			await recalculate_ace_y()
-			await degrade_ace()
-		"dual_player_retreat":
-			# Player's own card drawn: player retreated, CP advanced.
-			last_advanced_suit = _ace_name_to_suit(computer_ace)
-			await recalculate_ace_y()
-			await degrade_ace()
-		"dual_cp_retreat":
-			# CP's own card drawn: CP retreated, player advanced.
-			last_advanced_suit = _ace_name_to_suit(player_ace)
-			await recalculate_ace_y()
-			await degrade_ace()
-		"dual_both_advance":
-			# Third-party card drawn: both advanced.
-			last_advanced_suit = _ace_name_to_suit(player_ace)
 			await recalculate_ace_y()
 			await degrade_ace()
 		"stayed":
@@ -492,8 +419,6 @@ func move_ace(card):
 # chain would never fire on its own.
 func _end_round() -> void:
 	var gen = game_generation
-	timeout_active = false
-	overextension_active = false
 	if podium.size() == 3 and not transition_started:
 		transition_started = true
 		deck_ref.clickable_signal = true
@@ -504,21 +429,7 @@ func _end_round() -> void:
 		transition_ref.transition_signal()
 		return
 	if not picker_triggered_this_cycle and not transition_started:
-		if transpose_active and last_advanced_suit != 0:
-			var player_suit = _ace_name_to_suit(player_ace)
-			if player_suit != last_advanced_suit:
-				_do_instant_transpose(player_suit, last_advanced_suit)
-		if cp_transpose_active and last_advanced_suit != 0:
-			var cp_suit = _ace_name_to_suit(computer_ace)
-			if cp_suit != last_advanced_suit:
-				_do_instant_transpose(cp_suit, last_advanced_suit)
-		timeout_active = false
-		overextension_active = false
-		transpose_active = false
-		cp_transpose_active = false
-		anticipate_active = false
-		cp_anticipate_active = false
-		second_chance_count = 0
+		_apply_end_of_round_effects()
 		await get_tree().create_timer(0.3).timeout
 		if game_generation != gen:
 			return
@@ -526,8 +437,24 @@ func _end_round() -> void:
 		ability_picker_ref.show_picker()
 
 
-func calc_degrade(suit_num: int) -> void:
-	retreat_ace(suit_num)
+# Applies transpose effects and clears all round-scoped flags.
+# Called at the true end of every round (both normal and timeout paths).
+func _apply_end_of_round_effects() -> void:
+	if transpose_active and last_advanced_suit != 0:
+		var ps = _ace_name_to_suit(player_ace)
+		if ps != last_advanced_suit:
+			_do_instant_transpose(ps, last_advanced_suit)
+	if cp_transpose_active and last_advanced_suit != 0:
+		var cs = _ace_name_to_suit(computer_ace)
+		if cs != last_advanced_suit:
+			_do_instant_transpose(cs, last_advanced_suit)
+	timeout_active      = false
+	overextension_active = false
+	transpose_active    = false
+	cp_transpose_active = false
+	anticipate_active   = false
+	cp_anticipate_active = false
+	second_chance_count = 0
 
 
 # ── UI / Events ──────────────────────────────────────────────────────────────
