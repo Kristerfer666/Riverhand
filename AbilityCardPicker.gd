@@ -50,12 +50,9 @@ func _populate_buttons() -> void:
 		for child in btn.get_children():
 			child.free()
 		btn.modulate = Color(1, 1, 1)
+		btn.toggle_mode = true
+		btn.button_pressed = false
 		btn.clip_contents = true
-		var focus_style := StyleBoxFlat.new()
-		focus_style.draw_center = false
-		focus_style.border_color = Color.WHITE
-		focus_style.set_border_width_all(3)
-		btn.add_theme_stylebox_override("focus", focus_style)
 		if i < current_selection.size():
 			var card = current_selection[i]
 			btn.text = ""
@@ -102,9 +99,10 @@ func _on_card_option_pressed(index: int) -> void:
 	if not is_active:
 		return
 	selected_index = index
-	var btn = get_node_or_null("Control/CardsContainer/CardOption%d" % index)
-	if btn:
-		btn.grab_focus()
+	for i in range(3):
+		var btn = get_node_or_null("Control/CardsContainer/CardOption%d" % i)
+		if btn:
+			btn.button_pressed = (i == index)
 
 
 func _on_confirm_pressed() -> void:
