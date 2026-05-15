@@ -11,7 +11,9 @@ func _ready() -> void:
 	visible = false
 	_connect_buttons()
 	var font = load("res://materials/Fonts/NineteenNinetyThree-L1Ay.ttf")
-	$Control.add_theme_font_override("font", font)
+	var theme := Theme.new()
+	theme.set_default_font(font)
+	$Control.theme = theme
 
 
 func _connect_buttons() -> void:
