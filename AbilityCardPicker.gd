@@ -61,31 +61,28 @@ func _populate_buttons() -> void:
 			var card = current_selection[i]
 			btn.text = ""
 			btn.tooltip_text = card.get("description", "")
-			# Name + type: upper-middle band (15 % – 45 % of button height).
-			var lbl_header := Label.new()
-			lbl_header.text = card.get("name", "???") + "\n[" + card.get("type", "").to_upper() + "]"
-			lbl_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lbl_header.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
-			lbl_header.anchor_left   = 0.0
-			lbl_header.anchor_top    = 0.12
-			lbl_header.anchor_right  = 1.0
-			lbl_header.anchor_bottom = 0.45
-			lbl_header.offset_left  = 6
-			lbl_header.offset_right = -6
-			btn.add_child(lbl_header)
-			# Description: lower band (48 % – 94 % of button height), word-wrapped.
-			var lbl_desc := Label.new()
-			lbl_desc.text = card.get("description", "")
-			lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lbl_desc.vertical_alignment   = VERTICAL_ALIGNMENT_TOP
-			lbl_desc.anchor_left   = 0.0
-			lbl_desc.anchor_top    = 0.48
-			lbl_desc.anchor_right  = 1.0
-			lbl_desc.anchor_bottom = 0.94
-			lbl_desc.offset_left  = 6
-			lbl_desc.offset_right = -6
-			btn.add_child(lbl_desc)
+			var tex_path: String = _card_texture_path(card.get("id", ""))
+			if tex_path != "":
+				var tex_rect := TextureRect.new()
+				tex_rect.texture = load(tex_path)
+				tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				tex_rect.stretch_mode = TextureRect.STRETCH_SCALE
+				tex_rect.anchor_right = 1.0
+				tex_rect.anchor_bottom = 1.0
+				tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				btn.add_child(tex_rect)
+			var lbl_name := Label.new()
+			lbl_name.text = card.get("name", "???")
+			lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+			lbl_name.anchor_left   = 0.0
+			lbl_name.anchor_top    = 0.82
+			lbl_name.anchor_right  = 1.0
+			lbl_name.anchor_bottom = 1.0
+			lbl_name.offset_left  = 6
+			lbl_name.offset_right = -6
+			lbl_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			btn.add_child(lbl_name)
 		else:
 			btn.text = "—"
 
@@ -97,6 +94,13 @@ func hide_picker() -> void:
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property($Control, "modulate:a", 0.0, 0.2)
 	tween.tween_callback(func(): $Control.visible = false)
+
+
+func _card_texture_path(card_id: String) -> String:
+	const PATHS := {
+		"called_out": "res://materials/Ability Cards/Card Faces/Called out.png",
+	}
+	return PATHS.get(card_id, "")
 
 
 func _on_card_option_pressed(index: int) -> void:
