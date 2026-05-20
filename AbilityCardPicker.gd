@@ -84,13 +84,14 @@ func _populate_buttons() -> void:
 			lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
 			lbl_name.anchor_left   = 0.0
-			lbl_name.anchor_top    = 0.82
+			lbl_name.anchor_top    = 0.63
 			lbl_name.anchor_right  = 1.0
 			lbl_name.anchor_bottom = 1.0
 			lbl_name.offset_left  = 6
 			lbl_name.offset_right = -6
 			lbl_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			lbl_name.add_theme_color_override("font_color", Color.BLACK)
+			lbl_name.add_theme_font_size_override("font_size", 20)
 			btn.add_child(lbl_name)
 		else:
 			btn.text = "—"
