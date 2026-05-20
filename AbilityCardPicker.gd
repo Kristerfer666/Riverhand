@@ -57,20 +57,23 @@ func _populate_buttons() -> void:
 		btn.toggle_mode = true
 		btn.button_pressed = false
 		btn.clip_contents = true
+		var empty := StyleBoxEmpty.new()
+		for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+			btn.add_theme_stylebox_override(state, empty)
 		if i < current_selection.size():
 			var card = current_selection[i]
 			btn.text = ""
 			btn.tooltip_text = card.get("description", "")
 			var tex_path: String = _card_texture_path(card.get("id", ""))
 			if tex_path != "":
-				var tex := load(tex_path)
-				var sbox := StyleBoxTexture.new()
-				sbox.texture = tex
-				btn.add_theme_stylebox_override("normal", sbox)
-				btn.add_theme_stylebox_override("hover", sbox)
-				btn.add_theme_stylebox_override("pressed", sbox)
-				btn.add_theme_stylebox_override("focus", sbox)
-				btn.add_theme_stylebox_override("disabled", sbox)
+				var tex_rect := TextureRect.new()
+				tex_rect.texture = load(tex_path)
+				tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				tex_rect.anchor_right = 1.0
+				tex_rect.anchor_bottom = 1.0
+				tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				btn.add_child(tex_rect)
 			var lbl_name := Label.new()
 			lbl_name.text = card.get("name", "???")
 			lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
