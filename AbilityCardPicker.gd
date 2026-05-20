@@ -70,8 +70,13 @@ func _populate_buttons() -> void:
 				tex_rect.texture = load(tex_path)
 				tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 				tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				var pad := 40.0
 				tex_rect.anchor_right = 1.0
 				tex_rect.anchor_bottom = 1.0
+				tex_rect.offset_left = -pad
+				tex_rect.offset_top = -pad
+				tex_rect.offset_right = pad
+				tex_rect.offset_bottom = pad
 				tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				btn.add_child(tex_rect)
 			var lbl_name := Label.new()
