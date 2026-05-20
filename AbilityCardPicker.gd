@@ -57,6 +57,10 @@ func _populate_buttons() -> void:
 		btn.toggle_mode = true
 		btn.button_pressed = false
 		btn.clip_contents = true
+		# Remove the button's own gray background for all states.
+		var empty := StyleBoxEmpty.new()
+		for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+			btn.add_theme_stylebox_override(state, empty)
 		if i < current_selection.size():
 			var card = current_selection[i]
 			btn.text = ""
@@ -66,7 +70,7 @@ func _populate_buttons() -> void:
 				var tex_rect := TextureRect.new()
 				tex_rect.texture = load(tex_path)
 				tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-				tex_rect.stretch_mode = TextureRect.STRETCH_SCALE
+				tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 				tex_rect.anchor_right = 1.0
 				tex_rect.anchor_bottom = 1.0
 				tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -82,6 +86,7 @@ func _populate_buttons() -> void:
 			lbl_name.offset_left  = 6
 			lbl_name.offset_right = -6
 			lbl_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			lbl_name.add_theme_color_override("font_color", Color.BLACK)
 			btn.add_child(lbl_name)
 		else:
 			btn.text = "—"
