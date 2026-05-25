@@ -21,6 +21,8 @@ func _connect_buttons() -> void:
 		var btn = get_node_or_null("Control/CardsContainer/CardOption%d" % i)
 		if btn:
 			btn.pressed.connect(_on_card_option_pressed.bind(i))
+			btn.mouse_entered.connect(_on_card_hover.bind(btn, true))
+			btn.mouse_exited.connect(_on_card_hover.bind(btn, false))
 	var confirm_btn = get_node_or_null("Control/ConfirmButton")
 	if confirm_btn:
 		confirm_btn.pressed.connect(_on_confirm_pressed)
@@ -111,6 +113,13 @@ func _card_texture_path(card_id: String) -> String:
 		"called_out": "res://materials/Ability Cards/Card Faces/Called out.png",
 	}
 	return PATHS.get(card_id, "")
+
+
+func _on_card_hover(btn: Control, hovering: bool) -> void:
+	btn.pivot_offset = btn.size / 2.0
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(btn, "scale", Vector2(1.08, 1.08) if hovering else Vector2.ONE, 0.15)
 
 
 func _on_card_option_pressed(index: int) -> void:
