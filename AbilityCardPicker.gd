@@ -109,10 +109,18 @@ func hide_picker() -> void:
 
 
 func _card_texture_path(card_id: String) -> String:
-	const PATHS := {
+	const FACES := {
 		"called_out": "res://materials/Ability Cards/Card Faces/Called out.png",
 	}
-	return PATHS.get(card_id, "")
+	const BASES := {
+		"boost":      "res://materials/Ability Cards/Card Base/boost.png",
+		"conspiracy": "res://materials/Ability Cards/Card Base/conspiracy.png",
+		"counter":    "res://materials/Ability Cards/Card Base/counter.png",
+		"force":      "res://materials/Ability Cards/Card Base/force.png",
+	}
+	if FACES.has(card_id):
+		return FACES[card_id]
+	return BASES.get(AbilityCardDatabase.get_card_type(card_id), "")
 
 
 func _on_card_hover(btn: Control, hovering: bool) -> void:
